@@ -1,0 +1,11 @@
+{
+    "name": "RBM/SqlQuery",
+    "description": "A library to generate SQL Queries",
+    "minimum-stability": "dev",
+    "authors": [
+        {
+            "name": "Romain Bessuges",
+            "email": "romainbessuges@gmail.com"
+        }
+    ]
+}
