@@ -1,5 +1,5 @@
 {
-    "name": "RBM/SqlQuery",
+    "name": "romainbessugesmeusy/php-sql-query",
     "description": "A library to generate SQL Queries",
     "minimum-stability": "dev",
     "authors": [
