@@ -7,5 +7,10 @@
             "name": "Romain Bessuges",
             "email": "romainbessuges@gmail.com"
         }
-    ]
+    ],
+    "autoload": {
+        "psr-0": {
+            "RBM\\SqlQuery": "lib/SqlQuery"
+        }
+    }
 }
