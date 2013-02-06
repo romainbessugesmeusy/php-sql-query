@@ -9,8 +9,6 @@
         }
     ],
     "autoload": {
-        "psr-0": {
-            "RBM\\SqlQuery": "lib/SqlQuery"
-        }
+        "psr-0": { "RBM": "lib/" }
     }
 }
