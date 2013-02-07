@@ -8,7 +8,7 @@ namespace RBM\SqlQuery;
  * Time: 00:33
  * To change this template use File | Settings | File Templates.
  */
-class Delete
+class Delete implements IQuery
 {
     /** @var string|Table */
     protected $_table;

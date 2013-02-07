@@ -2,15 +2,19 @@
 /**
  * Created by JetBrains PhpStorm.
  * User: rbm
- * Date: 06/02/13
- * Time: 21:45
+ * Date: 07/02/13
+ * Time: 18:20
  * To change this template use File | Settings | File Templates.
  */
 
 namespace RBM\SqlQuery;
 
-interface IRenderer
-{
 
-    public function render(IQuery $query);
+interface IQuery {
+
+    /**
+     * @return Table
+     */
+    public function getTable();
+
 }

@@ -2,7 +2,7 @@
 
 namespace RBM\SqlQuery;
 
-class Select
+class Select implements IQuery
 {
     const JOIN_LEFT = 'LEFT';
     const JOIN_RIGHT = 'RIGHT';
@@ -18,7 +18,7 @@ class Select
     protected $_columns = array();
     /** @var Select[] */
     protected $_joins = array();
-    /** @var Column[] */
+    /** @var OrderBy[] */
     protected $_orderBy = array();
     /** @var Column[] */
     protected $_group = array();
@@ -30,6 +30,8 @@ class Select
     protected $_limitCount;
     /** @var string */
     protected $_filterClass = '\RBM\SqlQuery\Filter';
+    /** @var string */
+    protected $_filterOperator = "AND";
     /** @var string */
     protected $_camelizedTableName = "";
     /** @var bool */
@@ -67,40 +69,6 @@ class Select
     public function __clone()
     {
         return unserialize(serialize($this));
-    }
-
-    /**
-     * @return string
-     */
-    public function getSelectSql()
-    {
-
-    }
-
-    /**
-     * @return string
-     */
-    public function getJoinSql()
-    {
-    }
-
-    /**
-     * @return string
-     */
-    public function __toString()
-    {
-        if ($this->_isJoin) {
-            try {
-                return $this->getJoinSql();
-            } catch (Exception $e) {
-                return "ERROR BUILDING JOIN : " . $e->getMessage();
-            }
-        }
-        try {
-            return $this->getSelectSql();
-        } catch (Exception $e) {
-            return "ERROR BUILDING SELECT : " . $e->getMessage();
-        }
     }
 
     /**
@@ -169,6 +137,9 @@ class Select
         return $this->_limitStart;
     }
 
+    /**
+     * @return OrderBy[]
+     */
     public function getOrderBy()
     {
         return $this->_orderBy;
@@ -384,6 +355,23 @@ class Select
     {
         return $this->_filterClass;
     }
+
+    /**
+     * @param string $filterOperator
+     */
+    public function setFilterOperator($filterOperator)
+    {
+        $this->_filterOperator = $filterOperator;
+    }
+
+    /**
+     * @return string
+     */
+    public function getFilterOperator()
+    {
+        return $this->_filterOperator;
+    }
+
 
     /**
      * @param $table string|Table

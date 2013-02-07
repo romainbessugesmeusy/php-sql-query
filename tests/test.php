@@ -20,6 +20,8 @@ spl_autoload_register(function ($classname) {
     return false;
 });
 
+
+
 header("Content-Type:text/plain;charset=UTF-8");
 
 $select = new \RBM\SqlQuery\Select();
@@ -32,7 +34,7 @@ $select->join("Author", "AuthorId")->cols("Name", "Title");
 
 $renderer = new \RBM\SqlQuery\RendererAdapter\SqlServer();
 
-echo $renderer->renderSelect($select) ;
+echo $renderer->render($select) ;
 
 echo PHP_EOL;
 
@@ -44,4 +46,19 @@ $update->setValues(array(
 ));
 $update->filter()->equals("Category", "Sport");
 
-echo $renderer->renderUpdate($update);
+echo $renderer->render($update);
+
+
+$select1 = new \RBM\SqlQuery\Select();
+$select1->setTable("Projet");
+$select1->cols("ID");
+$select1->limit(0, 1);
+$select1->orderBy("DateCreated");
+
+$select2 = new \RBM\SqlQuery\Select();
+$select2->setTable("Client");
+$select2->cols("Name");
+$select2->filter()->equals("MainProject", $select1);
+
+$renderer = new \RBM\SqlQuery\RendererAdapter\MySql();
+echo $renderer->render($select2);

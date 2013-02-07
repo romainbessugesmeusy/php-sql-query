@@ -2,7 +2,7 @@
 
 namespace RBM\SqlQuery;
 
-class Update
+class Update implements IQuery
 {
 
     /** @var Table */

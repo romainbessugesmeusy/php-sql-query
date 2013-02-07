@@ -2,7 +2,7 @@
 
 namespace RBM\SqlQuery;
 
-class Insert
+class Insert implements IQuery
 {
 
     /** @var Table */
