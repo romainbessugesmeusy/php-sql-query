@@ -40,29 +40,13 @@ class Select implements IQuery
     protected $_joinType;
 
 
-    /**
-     * @param Table $table
-     * @param string|array|Column[] $cols
-     */
-    public function __construct(/**  */)
+    public function __construct(Table $table = null, array $cols = null)
     {
-        $camelizedTableName = $this->_getCamelizedTableName();
+        if ($table)
+            $this->setTable($table);
 
-        if (get_called_class() === '\RBM\SqlQuery\Select') {
-            if (func_num_args() > 0) {
-                $this->setTable(func_get_arg(0));
-            }
-            if (func_num_args() > 1) {
-                $this->setColumns(func_get_arg(1));
-            }
-        } else {
-            if (!isset($this->_table)) {
-                $this->_table = new Table('TBL_' . preg_replace('#([a-z])([A-Z])#', '$1_$2', $camelizedTableName));
-            }
-            if ($this->_filterClass === 'Filter') {
-                //$this->_guessFilterClass();
-            }
-        }
+        if ($cols)
+            $this->setColumns($cols);
     }
 
 
@@ -84,8 +68,7 @@ class Select implements IQuery
             return $this->_joins[$key];
         }
 
-        $selectClass = preg_replace_callback('#([A-Z]+)#', function($matches)
-        {
+        $selectClass = preg_replace_callback('#([A-Z]+)#', function ($matches) {
             return ucfirst(strtolower($matches[1]));
         }, $table->getName());
 
@@ -144,7 +127,6 @@ class Select implements IQuery
     {
         return $this->_orderBy;
     }
-
 
 
     /**
@@ -301,7 +283,7 @@ class Select implements IQuery
         /** @var $select Select */
         $select = clone $this;
         $select->setForcedColumns(array('1 AS tmp'));
-        if($this->getTable()->isView()){
+        if ($this->getTable()->isView()) {
             $select->removeOrder();
         }
         return "SELECT COUNT(*) FROM ($select) AS tmp";
