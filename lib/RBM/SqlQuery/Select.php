@@ -57,9 +57,13 @@ class Select implements IQuery
 
     /**
      * @param $table
+     * @param null $selfColumn
+     * @param null $refColumn
+     * @param array $columns
+     * @param string $selectClass
      * @return Select
      */
-    public function join($table, $selfColumn = null, $refColumn = null)
+    public function join($table, $selfColumn = null, $refColumn = null, $columns = array(), $selectClass = '\RBM\SqlQuery\Select')
     {
         $table = Helper::prepareTable($table);
         $key = $table->getCompleteName();
@@ -68,23 +72,8 @@ class Select implements IQuery
             return $this->_joins[$key];
         }
 
-        $selectClass = preg_replace_callback('#([A-Z]+)#', function ($matches) {
-            return ucfirst(strtolower($matches[1]));
-        }, $table->getName());
-
-        //todo supprimer la référence à TBL_
-        $selectClass = preg_replace('#^Tbl_#', '', $selectClass) . '_Select';
-
-        if (!class_exists($selectClass)) {
-            $selectClass = '\RBM\SqlQuery\Select';
-        }
-
         /** @var $select Select */
-        $select = new $selectClass();
-
-        if ($selectClass == '\RBM\SqlQuery\Select') {
-            $select->setTable($table);
-        }
+        $select = new $selectClass($table, $columns);
 
         if (!is_null($selfColumn)) {
             if (is_null($refColumn)) {
