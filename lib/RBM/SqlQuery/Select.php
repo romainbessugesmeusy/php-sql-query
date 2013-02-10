@@ -40,7 +40,7 @@ class Select implements IQuery
     protected $_joinType;
 
 
-    public function __construct($table = null, array $cols = null)
+    public function __construct($table = null, $cols = "*")
     {
         if ($table)
             $this->setTable($table);
@@ -481,10 +481,13 @@ class Select implements IQuery
     }
 
     /**
-     * @param $columns array
+     * @param $columns array|string|Column[]
      */
     public function setColumns($columns)
     {
+        if(!is_array($columns)){
+            $columns = array($this->_columns);
+        }
         $this->_columns = $columns;
     }
 
