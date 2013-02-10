@@ -40,7 +40,7 @@ class Select implements IQuery
     protected $_joinType;
 
 
-    public function __construct(Table $table = null, array $cols = null)
+    public function __construct($table = null, array $cols = null)
     {
         if ($table)
             $this->setTable($table);
