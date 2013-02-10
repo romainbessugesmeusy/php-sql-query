@@ -51,6 +51,11 @@ class Helper
     {
         if (is_string($arg)) {
             $arg = new Table($arg);
+        } else if (is_array($arg)){
+            $v = array_values($arg);
+            $k = array_keys($arg);
+            $arg = new Table($v[0]);
+            $arg->setAlias($k[0]);
         } else if (!is_a($arg, '\RBM\SqlQuery\Table')) {
             throw new Exception('Invalid table provided, string or Table expected : '.gettype($arg).' given\n');
         }
