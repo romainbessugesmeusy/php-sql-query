@@ -48,6 +48,7 @@ $update->filter()->equals("Category", "Sport");
 
 echo $renderer->render($update);
 
+echo PHP_EOL;
 
 $select1 = new \RBM\SqlQuery\Select();
 $select1->setTable("Projet");
@@ -62,3 +63,10 @@ $select2->filter()->equals("MainProject", $select1);
 
 $renderer = new \RBM\SqlQuery\RendererAdapter\MySql();
 echo $renderer->render($select2);
+
+echo PHP_EOL;
+
+$select3 = new \RBM\SqlQuery\Select("project");
+echo $renderer->render($select3);
+
+echo PHP_EOL;

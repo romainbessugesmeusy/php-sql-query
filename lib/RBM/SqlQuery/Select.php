@@ -481,12 +481,12 @@ class Select implements IQuery
     }
 
     /**
-     * @param $columns array|string|Column[]
+     * @param $columns array
      */
     public function setColumns($columns)
     {
         if(!is_array($columns)){
-            $columns = array($this->_columns);
+            $columns = array($columns);
         }
         $this->_columns = $columns;
     }
