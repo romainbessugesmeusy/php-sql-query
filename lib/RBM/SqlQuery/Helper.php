@@ -21,8 +21,10 @@ class Helper
         return $columns;
     }
 
+
     /**
-     * @param $arg
+     * @param string|array|Column[] $arg
+     * @param Table|string $table
      * @return Column
      * @throws Exception
      */
@@ -60,41 +62,5 @@ class Helper
             throw new Exception('Invalid table provided, string or Table expected : '.gettype($arg).' given\n');
         }
         return $arg;
-    }
-
-    /**
-     * @static
-     * @param $values
-     * @return array
-     */
-    public static function prepareValues($values)
-    {
-        array_walk($values, function (&$value){
-           $value = Helper::prepareValue($value);
-        });
-        return $values;
-    }
-
-    /**
-     * @static
-     * @param $value mixed
-     * @return int|string
-     */
-    public static function prepareValue($value)
-    {
-        if (is_null($value)) {
-            return 'NULL';
-        } elseif (is_numeric($value)){
-            if(is_float($value)){
-                return number_format(floatval($value), 10, '.', '');
-            } else {
-                return intval($value);
-            }
-        } elseif (is_string($value)) {
-            return "'". str_replace("'", "''", $value) ."'";
-        } elseif (is_bool($value)) {
-            return $value ? 1 : 0;
-        }
-        return $value;
     }
 }

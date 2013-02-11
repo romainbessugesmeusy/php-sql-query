@@ -25,19 +25,11 @@ class Delete implements IQuery
     }
 
     /**
-     * @param Filter $filter
+     * @return Table|string
      */
-    public function setFilter($filter)
+    public function getTable()
     {
-        $this->_filter = $filter;
-    }
-
-    /**
-     * @return Filter
-     */
-    public function getFilter()
-    {
-        return $this->_filter;
+        return Helper::prepareTable($this->_table);
     }
 
     /**
@@ -49,11 +41,19 @@ class Delete implements IQuery
     }
 
     /**
-     * @return Table|string
+     * @return Filter
      */
-    public function getTable()
+    public function getFilter()
     {
-        return Helper::prepareTable($this->_table);
+        return $this->_filter;
+    }
+
+    /**
+     * @param Filter $filter
+     */
+    public function setFilter($filter)
+    {
+        $this->_filter = $filter;
     }
 
 

@@ -7,7 +7,6 @@ class Select implements IQuery
     const JOIN_LEFT = 'LEFT';
     const JOIN_RIGHT = 'RIGHT';
     const JOIN_INNER = 'INNER';
-
     /** @var Table */
     protected $_table;
     /** @var Filter */
@@ -39,7 +38,10 @@ class Select implements IQuery
     /** @var string */
     protected $_joinType;
 
-
+    /**
+     * @param string|Table|null $table
+     * @param string|array|Column[] $cols
+     */
     public function __construct($table = null, $cols = "*")
     {
         if ($table)
@@ -48,7 +50,6 @@ class Select implements IQuery
         if ($cols)
             $this->setColumns($cols);
     }
-
 
     public function __clone()
     {
@@ -86,6 +87,20 @@ class Select implements IQuery
     }
 
     /**
+     * @return Filter
+     */
+    public function joinCondition()
+    {
+        if (!isset($this->_joinCondition)) {
+            $cls = $this->_filterClass;
+            $this->_joinCondition = new $cls();
+            $this->_joinCondition->setTable($this->_table);
+        }
+        return $this->_joinCondition;
+
+    }
+
+    /**
      * @return boolean
      */
     public function getIsJoin()
@@ -117,56 +132,14 @@ class Select implements IQuery
         return $this->_orderBy;
     }
 
-
     /**
-     * @param Select $select
-     * @param string $selfColumn
-     * @param string $refColumn
-     * @return Select
-     */
-    public function addJoin(Select $select, $selfColumn = null, $refColumn = null)
-    {
-        $key = (string)$select->getTable()->getCompleteName();
-        if (isset($this->_joins[$key])) {
-            return $this->_joins[$key];
-        }
-
-        $select->isJoin();
-
-        if (!is_null($selfColumn)) {
-            if (is_null($refColumn)) {
-                $refColumn = $selfColumn;
-            }
-
-            $select->joinCondition()->equals($refColumn, Helper::prepareColumn($selfColumn, $this->getTable()));
-        }
-
-        $this->_joins[$key] = $select;
-
-        return $this->_joins[$key];
-    }
-
-    /**
-     * @param $table Table|string
+     * @param Table|string $table
+     * @return bool
      */
     public function hasJoin($table)
     {
         $table = Helper::prepareTable($table);
         return isset($this->_joins[(string)$table]);
-    }
-
-    /**
-     * @return Filter
-     */
-    public function joinCondition()
-    {
-        if (!isset($this->_joinCondition)) {
-            $cls = $this->_filterClass;
-            $this->_joinCondition = new $cls();
-            $this->_joinCondition->setTable($this->_table);
-        }
-        return $this->_joinCondition;
-
     }
 
     /**
@@ -179,6 +152,10 @@ class Select implements IQuery
         return $this;
     }
 
+    /**
+     * @param string|Column $column
+     * @return $this
+     */
     public function addColumn($column)
     {
         $this->_columns[] = $column;
@@ -231,6 +208,85 @@ class Select implements IQuery
     }
 
     /**
+     * @return Column[]
+     */
+    public function getColumns()
+    {
+        return Helper::prepareColumns($this->_columns, $this->getTable());
+    }
+
+    /**
+     * @param $columns array
+     */
+    public function setColumns($columns)
+    {
+        if(!is_array($columns)){
+            $columns = array($columns);
+        }
+        $this->_columns = $columns;
+    }
+
+    /**
+     * @return Table
+     */
+    public function getTable()
+    {
+        return Helper::prepareTable($this->_table);
+    }
+
+    /**
+     * Transforms Select in a joint
+     */
+    public function isJoin($isJoin = true)
+    {
+        $this->_isJoin = $isJoin;
+    }
+
+    /**
+     * @param $table string|Table
+     */
+    public function setTable($table)
+    {
+        $this->_table = $table;
+    }
+
+    /**
+     * Supprime toutes les clauses de tri
+     */
+    public function removeOrder()
+    {
+        $this->_orderBy = array();
+    }
+
+    /**
+     * @param Select $select
+     * @param string $selfColumn
+     * @param string $refColumn
+     * @return Select
+     */
+    public function addJoin(Select $select, $selfColumn = null, $refColumn = null)
+    {
+        $key = (string)$select->getTable()->getCompleteName();
+        if (isset($this->_joins[$key])) {
+            return $this->_joins[$key];
+        }
+
+        $select->isJoin();
+
+        if (!is_null($selfColumn)) {
+            if (is_null($refColumn)) {
+                $refColumn = $selfColumn;
+            }
+
+            $select->joinCondition()->equals($refColumn, Helper::prepareColumn($selfColumn, $this->getTable()));
+        }
+
+        $this->_joins[$key] = $select;
+
+        return $this->_joins[$key];
+    }
+
+    /**
      * @return Filter[]
      */
     public function getAllFilters()
@@ -279,10 +335,11 @@ class Select implements IQuery
     }
 
     /**
-     * @param string|Column $column
+     * @param $column
      * @param string $direction
-     * @param null|string $table
-     * @return Select
+     * @param null $table
+     * @param bool $useAlias
+     * @return $this
      */
     public function orderBy($column, $direction = OrderBy::ASC, $table = null, $useAlias = true)
     {
@@ -292,23 +349,23 @@ class Select implements IQuery
     }
 
     /**
-     * Supprime toutes les clauses de tri
-     */
-    public function removeOrder()
-    {
-        $this->_orderBy = array();
-    }
-
-    /**
-     * @param $start int
-     * @param $count int
-     * @return Select
+     * @param $start
+     * @param $count
+     * @return $this
      */
     public function limit($start, $count)
     {
         $this->_limitStart = intval($start);
         $this->_limitCount = intval($count);
         return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getFilterClass()
+    {
+        return $this->_filterClass;
     }
 
     /**
@@ -322,9 +379,9 @@ class Select implements IQuery
     /**
      * @return string
      */
-    public function getFilterClass()
+    public function getFilterOperator()
     {
-        return $this->_filterClass;
+        return $this->_filterOperator;
     }
 
     /**
@@ -333,39 +390,6 @@ class Select implements IQuery
     public function setFilterOperator($filterOperator)
     {
         $this->_filterOperator = $filterOperator;
-    }
-
-    /**
-     * @return string
-     */
-    public function getFilterOperator()
-    {
-        return $this->_filterOperator;
-    }
-
-
-    /**
-     * @param $table string|Table
-     */
-    public function setTable($table)
-    {
-        $this->_table = $table;
-    }
-
-    /**
-     * @return Table
-     */
-    public function getTable()
-    {
-        return Helper::prepareTable($this->_table);
-    }
-
-    /**
-     * @param $joins Select[]
-     */
-    public function setJoins($joins)
-    {
-        $this->_joins = $joins;
     }
 
     /**
@@ -385,6 +409,14 @@ class Select implements IQuery
     }
 
     /**
+     * @param $joins Select[]
+     */
+    public function setJoins($joins)
+    {
+        $this->_joins = $joins;
+    }
+
+    /**
      * @return Select[]
      */
     public function getAllJoins()
@@ -398,14 +430,6 @@ class Select implements IQuery
     }
 
     /**
-     * @param $columns
-     */
-    public function setGroup($columns)
-    {
-        $this->_group = $columns;
-    }
-
-    /**
      * @return Column[]
      */
     public function getGroup()
@@ -414,11 +438,11 @@ class Select implements IQuery
     }
 
     /**
-     * @param $forcedColumns
+     * @param $columns
      */
-    public function setForcedColumns($forcedColumns)
+    public function setGroup($columns)
     {
-        $this->_forcedColumns = $forcedColumns;
+        $this->_group = $columns;
     }
 
     /**
@@ -430,19 +454,11 @@ class Select implements IQuery
     }
 
     /**
-     * Transforms Select in a joint
+     * @param $forcedColumns
      */
-    public function isJoin($isJoin = true)
+    public function setForcedColumns($forcedColumns)
     {
-        $this->_isJoin = $isJoin;
-    }
-
-    /**
-     * @param $joinCondition Filter
-     */
-    public function setJoinCondition($joinCondition)
-    {
-        $this->_joinCondition = $joinCondition;
+        $this->_forcedColumns = $forcedColumns;
     }
 
     /**
@@ -454,11 +470,11 @@ class Select implements IQuery
     }
 
     /**
-     * @param $joinType string
+     * @param $joinCondition Filter
      */
-    public function setJoinType($joinType)
+    public function setJoinCondition($joinCondition)
     {
-        $this->_joinType = $joinType;
+        $this->_joinCondition = $joinCondition;
     }
 
     /**
@@ -470,38 +486,10 @@ class Select implements IQuery
     }
 
     /**
-     * @param $columns array
+     * @param $joinType string
      */
-    public function setColumns($columns)
+    public function setJoinType($joinType)
     {
-        if(!is_array($columns)){
-            $columns = array($columns);
-        }
-        $this->_columns = $columns;
+        $this->_joinType = $joinType;
     }
-
-    public function getColumns()
-    {
-        return Helper::prepareColumns($this->_columns, $this->getTable());
-    }
-
-    private function _getCamelizedTableName()
-    {
-        if (!$this->_camelizedTableName) {
-            $this->_camelizedTableName = preg_replace('#_Select$#', '', get_class($this));
-        }
-        return $this->_camelizedTableName;
-    }
-
-
-    private function _guessFilterClass()
-    {
-        $camelizedTableName = $this->_getCamelizedTableName();
-        $filterCls = $camelizedTableName . '_Filter';
-        if (class_exists($filterCls)) {
-            $this->_filterClass = $filterCls;
-        }
-    }
-
-
 }

@@ -20,7 +20,7 @@ class Insert implements IQuery
     }
 
     /**
-     * @return string
+     * @return Table
      */
     public function getTable()
     {
@@ -40,7 +40,7 @@ class Insert implements IQuery
      */
     public function getValues()
     {
-        return Helper::prepareValues($this->_values);
+        return $this->_values;
     }
 
     public function getColumns()

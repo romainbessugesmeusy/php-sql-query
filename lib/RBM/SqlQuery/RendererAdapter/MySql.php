@@ -10,8 +10,25 @@
 namespace RBM\SqlQuery\RendererAdapter;
 
 use RBM\SqlQuery\AbstractRenderer;
+use RBM\SqlQuery\Column;
+use RBM\SqlQuery\Table;
 
 class MySql extends AbstractRenderer
 {
+
+    protected function _renderColumn(Column $column)
+    {
+        return $this->_enclose(parent::_renderColumn($column));
+    }
+
+    protected function _renderTable(Table $table)
+    {
+        return $this->_enclose(parent::_renderTable($table));
+    }
+
+    protected function _enclose($string, $char = '`')
+    {
+        return $char.$string.$char;
+    }
 
 }

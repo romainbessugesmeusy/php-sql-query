@@ -26,10 +26,10 @@ abstract class AbstractRenderer implements IRenderer
 {
     public function render(IQuery $query)
     {
-        if($query instanceof Select) return $this->_renderSelect($query);
-        if($query instanceof Update) return $this->_renderUpdate($query);
-        if($query instanceof Delete) return $this->_renderDelete($query);
-        if($query instanceof Insert) return $this->_renderInsert($query);
+        if ($query instanceof Select) return $this->_renderSelect($query);
+        if ($query instanceof Update) return $this->_renderUpdate($query);
+        if ($query instanceof Delete) return $this->_renderDelete($query);
+        if ($query instanceof Insert) return $this->_renderInsert($query);
 
         throw new RendererException("Query must be an instance of Select, Update, Delete or Insert");
     }
@@ -40,9 +40,8 @@ abstract class AbstractRenderer implements IRenderer
             return $this->_renderJoin($select);
         }
 
-
         $parts = array();
-        $cols = ($select->getForcedColumns()) ? $select->getForcedColumns() : $select->getAllColumns();
+        $cols  = ($select->getForcedColumns()) ? $select->getForcedColumns() : $select->getAllColumns();
 
         array_walk($cols, function (&$col) {
             $col = $this->_renderColumnWithAlias($col);
@@ -93,6 +92,8 @@ abstract class AbstractRenderer implements IRenderer
             $parts[] = "\t" . implode(', ', $orderBys);
         }
 
+        $parts[] = $this->_renderLimit($select);
+
         $sql = implode("\n", $parts);
 
         return $sql;
@@ -101,11 +102,11 @@ abstract class AbstractRenderer implements IRenderer
     protected function _renderUpdate(Update $update)
     {
         $table = $this->_renderTable($update->getTable());
-        $sql = "UPDATE {$table} SET ";
+        $sql   = "UPDATE {$table} SET ";
 
         $assigns = array();
         foreach ($update->getValues() as $col => $value) {
-            $col = $this->_renderColumn(Helper::prepareColumn($col, $update->getTable()));
+            $col       = $this->_renderColumn(Helper::prepareColumn($col, $update->getTable()));
             $assigns[] = "$col = $value";
         }
         $sql .= implode(", ", $assigns);
@@ -132,8 +133,8 @@ abstract class AbstractRenderer implements IRenderer
             $val = $this->_renderValue($val);
         });
 
-        $cols = implode(", ", $cols);
-        $vals = implode(", ", $vals);
+        $cols  = implode(", ", $cols);
+        $vals  = implode(", ", $vals);
         $table = $this->_renderTable($insert->getTable());
         return "INSERT INTO {$table} ($cols) VALUES ($vals)";
     }
@@ -145,13 +146,12 @@ abstract class AbstractRenderer implements IRenderer
     protected function _renderDelete(Delete $delete)
     {
         $table = $this->_renderTable($delete->getTable());
-        $sql = "DELETE FROM {$table}";
+        $sql   = "DELETE FROM {$table}";
         if ($delete->getFilter()) {
             $sql .= " WHERE {$this->_renderFilter($delete->getFilter())}";
         }
         return $sql;
     }
-
 
     /**
      * @param $value
@@ -171,7 +171,7 @@ abstract class AbstractRenderer implements IRenderer
      */
     protected function _renderValues($values)
     {
-        array_walk($values, function(&$value) {
+        array_walk($values, function (&$value) {
             $value = $this->_renderValue($value);
         });
         return $values;
@@ -235,7 +235,8 @@ abstract class AbstractRenderer implements IRenderer
      */
     protected function _renderFunc(Func $func)
     {
-        $format = "$func->getName(%s)";
+        $name   = $func->getName();
+        $format = "$name(%s)";
         return sprintf($format, implode(', ', $func->getArgs()));
     }
 
@@ -277,13 +278,13 @@ abstract class AbstractRenderer implements IRenderer
     protected function _renderFilterClauses(Filter $filter)
     {
 
-        $ins = $this->_renderFilterIns($filter);
-        $notIns = $this->_renderFilterNotIns($filter);
-        $betweens = $this->_renderFilterBetweens($filter);
+        $ins         = $this->_renderFilterIns($filter);
+        $notIns      = $this->_renderFilterNotIns($filter);
+        $betweens    = $this->_renderFilterBetweens($filter);
         $comparisons = $this->_renderFilterComparisons($filter);
-        $isNulls = $this->_renderFilterIsNulls($filter);
-        $isNotNulls = $this->_renderFilterIsNotNulls($filter);
-        $booleans = $this->_renderFilterBooleans($filter);
+        $isNulls     = $this->_renderFilterIsNulls($filter);
+        $isNotNulls  = $this->_renderFilterIsNotNulls($filter);
+        $booleans    = $this->_renderFilterBooleans($filter);
 
         $clauses = array_merge($ins, $notIns, $betweens, $comparisons, $isNulls, $isNotNulls, $booleans);
 
@@ -306,16 +307,15 @@ abstract class AbstractRenderer implements IRenderer
         $ins = array();
 
         foreach ($filter->getIns() as $col => $values) {
-            $col = Helper::prepareColumn($col, $filter->getTable());
-            $col = $this->_renderColumn($col);
+            $col    = Helper::prepareColumn($col, $filter->getTable());
+            $col    = $this->_renderColumn($col);
             $values = $this->_renderValues($values);
             $values = implode(", ", $values);
-            $ins[] = "( {$col} IN ({$values}) )";
+            $ins[]  = "( {$col} IN ({$values}) )";
         }
 
         return $ins;
     }
-
 
     /**
      * @param Filter $filter
@@ -326,10 +326,10 @@ abstract class AbstractRenderer implements IRenderer
         $notIns = array();
 
         foreach ($filter->getNotIns() as $col => $values) {
-            $col = Helper::prepareColumn($col, $filter->getTable());
-            $col = $this->_renderColumn($col);
-            $values = $this->_renderValues($values);
-            $values = implode(", ", $values);
+            $col      = Helper::prepareColumn($col, $filter->getTable());
+            $col      = $this->_renderColumn($col);
+            $values   = $this->_renderValues($values);
+            $values   = implode(", ", $values);
             $notIns[] = "( {$col} NOT IN ({$values}) )";
         }
 
@@ -343,7 +343,7 @@ abstract class AbstractRenderer implements IRenderer
     protected function _renderFilterBetweens(Filter $filter)
     {
         $betweens = $filter->getBetweens();
-        array_walk($betweens, function (&$between)  {
+        array_walk($betweens, function (&$between) {
             $between = "( "
                 . $this->_renderColumn($between["column"])
                 . " BETWEEN "
@@ -363,15 +363,15 @@ abstract class AbstractRenderer implements IRenderer
     protected function _renderFilterComparisons(Filter $filter)
     {
         $comparisons = $filter->getComparisons();
-        array_walk($comparisons, function (&$comparison)  {
+        array_walk($comparisons, function (&$comparison) {
             $str = ($comparison["subject"] instanceof Column) ? $this->_renderColumn($comparison["subject"]) : $this->_renderValue($comparison["subject"]);
             $str .= $this->_renderOperator($comparison["operator"]);
             if ($comparison["target"] instanceof Column) {
-                $str.= $this->_renderColumn($comparison["target"]);
+                $str .= $this->_renderColumn($comparison["target"]);
             } elseif ($comparison["target"] instanceof IQuery) {
-                $str.= "(\n" . $this->render($comparison["target"]) . "\n)";
+                $str .= "(\n" . $this->render($comparison["target"]) . "\n)";
             } else {
-                $str.= $this->_renderValue($comparison["target"]);
+                $str .= $this->_renderValue($comparison["target"]);
             }
             $comparison = "( $str )";
         });
@@ -385,7 +385,7 @@ abstract class AbstractRenderer implements IRenderer
     protected function _renderFilterIsNulls(Filter $filter)
     {
         $isNulls = $filter->getIsNull();
-        array_walk($isNulls, function (&$isNull)  {
+        array_walk($isNulls, function (&$isNull) {
             $isNull = "( " . $this->_renderColumn($isNull["column"]) . $this->_renderIsNull() . " )";
         });
 
@@ -438,7 +438,7 @@ abstract class AbstractRenderer implements IRenderer
      */
     protected function _renderTableWithAlias(Table $table)
     {
-        $alias = ($table->getAlias()) ? " AS {$table->getAlias()}" : '';
+        $alias  = ($table->getAlias()) ? " AS {$table->getAlias()}" : '';
         $schema = ($table->getSchema()) ? "{$table->getSchema()}." : '';
         return $schema . $table->getName() . $alias;
     }
@@ -486,5 +486,25 @@ abstract class AbstractRenderer implements IRenderer
             return $this->_renderColumn($column) . " AS " . $alias;
         }
         return $this->_renderColumn($column);
+    }
+
+    /**
+     * @param Select $select
+     * @return string
+     */
+    protected function _renderLimit(Select $select)
+    {
+        $mask = is_null($select->getLimitStart()) ? '0' : '1';
+        $mask .= is_null($select->getLimitCount()) ? '0' : '1';
+
+        switch ($mask) {
+            case '10':
+                return "LIMIT {$select->getLimitStart()}";
+            case '11':
+                return "LIMIT {$select->getLimitStart()}, {$select->getLimitCount()}";
+            case '01':
+                return "LIMIT 0, {$select->getLimitCount()}";
+        }
+        return '';
     }
 }

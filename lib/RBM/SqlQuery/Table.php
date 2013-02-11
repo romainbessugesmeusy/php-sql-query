@@ -7,13 +7,14 @@ class Table
 
 
     protected $_name;
-
     protected $_alias;
-
     protected $_schema;
-
     protected $_view = false;
 
+    /**
+     * @param $name
+     * @param string|null $schema
+     */
     public function __construct($name, $schema = null)
     {
         if (is_array($name)) {
@@ -29,54 +30,67 @@ class Table
         }
     }
 
+    /**
+     * @param boolean $view
+     */
     public function setView($view)
     {
         $this->_view = ($view);
     }
 
+    /**
+     * @return bool
+     */
     public function isView()
     {
         return $this->_view;
     }
 
-    public function __toString()
-    {
-        return $this->_schema . '.' . strtoupper($this->_name);
-    }
-
-    public function getCompleteName()
-    {
-        $alias = ($this->_alias) ? " AS {$this->_alias}" : '';
-        return $this->_schema . '.' . strtoupper($this->_name).$alias;
-    }
-
-    public function setName($name)
-    {
-        $this->_name = $name;
-    }
-
+    /**
+     * @return string
+     */
     public function getName()
     {
         return $this->_name;
     }
 
-    public function setAlias($alias)
+    /**
+     * @param string $name
+     */
+    public function setName($name)
     {
-        $this->_alias = $alias;
+        $this->_name = $name;
     }
 
+    /**
+     * @return string
+     */
     public function getAlias()
     {
         return $this->_alias;
     }
 
-    public function setSchema($schema)
+    /**
+     * @param string $alias
+     */
+    public function setAlias($alias)
     {
-        $this->_schema = $schema;
+        $this->_alias = $alias;
     }
 
+    /**
+     * @return string|null
+     */
     public function getSchema()
     {
         return $this->_schema;
+    }
+
+    /**
+     * @param string|null $schema
+     */
+    public function setSchema($schema)
+    {
+        $this->_schema = $schema;
     }
 }

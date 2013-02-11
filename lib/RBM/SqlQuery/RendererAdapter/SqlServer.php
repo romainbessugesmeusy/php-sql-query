@@ -26,7 +26,7 @@ class SqlServer extends AbstractRenderer
         $sql = parent::_renderSelect($select);
 
         if (!is_null($select->getLimitStart()) || !is_null($select->getLimitCount())) {
-            $sql = $this->_applyLimit($select, $sql);
+            $sql = $this->_applyLimit($sql, $select);
         }
 
         return $sql;
@@ -65,8 +65,8 @@ class SqlServer extends AbstractRenderer
                 $orders = explode(',', $substr);
                 array_walk($orders, function (&$ord) {
                     $direction = substr($ord, strrpos($ord, ' ') + 1);
-                    $col = substr($ord, 0, strrpos($ord, ' '));
-                    $ord = 'inner_tbl.' . substr($col, strrpos($col, '.') + 1) . ' ' . $direction;
+                    $col       = substr($ord, 0, strrpos($ord, ' '));
+                    $ord       = 'inner_tbl.' . substr($col, strrpos($col, '.') + 1) . ' ' . $direction;
                 });
 
                 $over = 'ORDER BY ' . implode(',', $orders);
@@ -78,11 +78,18 @@ class SqlServer extends AbstractRenderer
             $sql = "SELECT ROW_NUMBER() OVER ($over) AS __rownum__, * FROM ($sql) AS inner_tbl";
 
             $start = $offset + 1;
-            $end = $offset + $count;
+            $end   = $offset + $count;
 
             $sql = "WITH outer_tbl AS ($sql) SELECT * FROM outer_tbl WHERE CAST(__rownum__ AS int) BETWEEN $start AND $end";
         }
 
         return $sql;
     }
+
+    protected function _renderLimit(Select $select)
+    {
+        return '';
+    }
+
+
 }

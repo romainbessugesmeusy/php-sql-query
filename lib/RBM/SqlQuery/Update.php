@@ -54,7 +54,7 @@ class Update implements IQuery
     }
 
     /**
-     * @return string
+     * @return Table
      */
     public function getTable()
     {
@@ -75,7 +75,7 @@ class Update implements IQuery
      */
     public function getValues()
     {
-        return Helper::prepareValues($this->_values);
+        return $this->_values;
     }
 
     /**

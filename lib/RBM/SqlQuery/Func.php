@@ -2,7 +2,7 @@
 
 namespace RBM\SqlQuery;
 
-class Func extends \RBM\SqlQuery\Column
+class Func extends Column
 {
     const SUM = 'SUM';
     const COUNT = 'COUNT';
