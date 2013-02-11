@@ -18,9 +18,9 @@ class Table
     public function __construct($name, $schema = null)
     {
         if (is_array($name)) {
-            $keys = array_keys($name);
+            $keys         = array_keys($name);
             $this->_alias = reset($keys);
-            $this->_name = reset($name);
+            $this->_name  = reset($name);
         } else {
             $this->_name = $name;
         }
@@ -68,6 +68,16 @@ class Table
     public function getAlias()
     {
         return $this->_alias;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCompleteName()
+    {
+        $alias  = ($this->_alias) ? " AS {$this->_alias}" : '';
+        $schema = ($this->_schema) ? "{$this->_schema}." : '';
+        return $schema . $this->_name . $alias;
     }
 
     /**
