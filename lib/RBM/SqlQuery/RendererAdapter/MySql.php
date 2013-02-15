@@ -28,6 +28,7 @@ class MySql extends AbstractRenderer
 
     protected function _enclose($string, $char = '`')
     {
+        return $string;
         return $char.$string.$char;
     }
 

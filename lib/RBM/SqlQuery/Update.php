@@ -2,12 +2,8 @@
 
 namespace RBM\SqlQuery;
 
-class Update implements IQuery
+class Update extends AbstractQuery
 {
-
-    /** @var Table */
-    protected $_table;
-
     /** @var Filter */
     protected $_filter;
 
@@ -43,22 +39,6 @@ class Update implements IQuery
     public function getFilter()
     {
         return $this->_filter;
-    }
-
-    /**
-     * @param string $table
-     */
-    public function setTable($table)
-    {
-        $this->_table = Helper::prepareTable($table);
-    }
-
-    /**
-     * @return Table
-     */
-    public function getTable()
-    {
-        return $this->_table;
     }
 
     /**

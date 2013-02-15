@@ -2,30 +2,10 @@
 
 namespace RBM\SqlQuery;
 
-class Insert implements IQuery
+class Insert extends AbstractQuery
 {
-
-    /** @var Table */
-    protected $_table;
-
     /** @var array */
     protected $_values;
-
-    /**
-     * @param string $table
-     */
-    public function setTable($table)
-    {
-        $this->_table = Helper::prepareTable($table);
-    }
-
-    /**
-     * @return Table
-     */
-    public function getTable()
-    {
-        return $this->_table;
-    }
 
     /**
      * @param array $values
@@ -43,6 +23,9 @@ class Insert implements IQuery
         return $this->_values;
     }
 
+    /**
+     * @return Column[]
+     */
     public function getColumns()
     {
         return Helper::prepareColumns(array_keys($this->_values), $this->getTable());

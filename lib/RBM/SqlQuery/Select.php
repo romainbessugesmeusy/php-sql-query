@@ -2,7 +2,7 @@
 
 namespace RBM\SqlQuery;
 
-class Select implements IQuery
+class Select extends AbstractQuery
 {
     const JOIN_LEFT = 'LEFT';
     const JOIN_RIGHT = 'RIGHT';
@@ -227,14 +227,6 @@ class Select implements IQuery
     }
 
     /**
-     * @return Table
-     */
-    public function getTable()
-    {
-        return Helper::prepareTable($this->_table);
-    }
-
-    /**
      * Transforms Select in a joint
      */
     public function isJoin($isJoin = true)
@@ -242,13 +234,6 @@ class Select implements IQuery
         $this->_isJoin = $isJoin;
     }
 
-    /**
-     * @param $table string|Table
-     */
-    public function setTable($table)
-    {
-        $this->_table = $table;
-    }
 
     /**
      * Supprime toutes les clauses de tri

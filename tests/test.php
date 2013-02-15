@@ -25,6 +25,17 @@ spl_autoload_register(function ($classname) {
 header("Content-Type:text/plain;charset=UTF-8");
 
 $select = new \RBM\SqlQuery\Select();
+$select->setTable("project");
+$select->setColumns(["project_id", "name"]);
+$select->limit(0, 10);
+
+$renderer = new \RBM\SqlQuery\RendererAdapter\MySql();
+
+echo $renderer->render($select) ;
+echo PHP_EOL;
+
+
+$select = new \RBM\SqlQuery\Select();
 $select->setTable("Post");
 $select->cols("Title", "Date");
 $select->filter()

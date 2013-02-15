@@ -8,10 +8,8 @@ namespace RBM\SqlQuery;
  * Time: 00:33
  * To change this template use File | Settings | File Templates.
  */
-class Delete implements IQuery
+class Delete extends AbstractQuery
 {
-    /** @var string|Table */
-    protected $_table;
     /** @var Filter */
     protected $_filter;
 
@@ -24,21 +22,6 @@ class Delete implements IQuery
         return $this->_filter;
     }
 
-    /**
-     * @return Table|string
-     */
-    public function getTable()
-    {
-        return Helper::prepareTable($this->_table);
-    }
-
-    /**
-     * @param Table|string $table
-     */
-    public function setTable($table)
-    {
-        $this->_table = $table;
-    }
 
     /**
      * @return Filter
