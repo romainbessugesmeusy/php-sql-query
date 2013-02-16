@@ -91,7 +91,7 @@ Result:
 
 SELECT & JOINS
 --------------
-A **JOIN** is a **SELECT**. In fact, there is no ```\RBM\SqlQuery\Join``` class and there won't be.
+A **JOIN** is a **SELECT**. In fact, there is no `\RBM\SqlQuery\Join` class and there won't be.
 
 	$select = new Select('project', ['project_id', 'name']);
 	$owner = $select->join('user', 'owner_id', 'user_id');
@@ -105,3 +105,70 @@ Gives us
         	(
             	[_name:protected] => user
 	…
+	
+The most effective advantage of considering J0IN as SELECT is reusability. Let say you have an entity that provides some selects. 
+
+	class UserEntity 
+	{
+	
+		public function getSelectForActiveUsers()
+		{
+			$select = new Select('user');
+			$select->filter()->equals('active', 1);
+			return $select;
+		}
+		
+	}	
+	
+	class ProjectEntity 
+	{
+
+		public function getSelectForProjectsOfActiveUsers()
+		{
+			$userEntity = new UserEntity();
+			$select = new Select('project');
+			$select->addJoin($userEntity->getSelectForActiveUsers(), 'owner_id', 'user_id');
+		}	
+	}
+
+
+Overloading and inheritance
+------------
+One intersting feature of this package is that it can be extended to inject business value to the query and filter layer. The finality of inheritance is to objectify the query construction, by making it fluent and business oriented.
+
+###Select
+
+While extending selects, you'll discover that the first obvious usage is to define shortcuts for joins: 
+
+	class ProjectSelect extends \RBM\SqlQuery\Select
+	{
+		// overloading the table (simple way)
+		protected $_table = 'project';
+	
+		public function owner()
+		{
+			return $this->join('user', 'owner_id', 'user_id');
+		}
+	}
+
+Usage:
+
+	$projects = new ProjectSelect();
+	$projects->owner()->filter()->equals('user_id', 1);
+	
+###Filter
+
+Creating a filter for our project table is straightforward: 
+	
+	class ProjectFilter extends \RBM\SqlQuery\Filter
+	{
+		public function deleted($deleted)
+		{
+			return ($deleted) $this->isNull('date_deleted') : $this->isNotNull('date_deleted');
+		}
+	}
+
+To use this filter, you'll have to modified the static `filterClass` property from the select we just created or specify it as a parameter of the `->filter()` method:
+	
+	$projects = new ProjectSelect();
+	$projects->filter()->deleted(true);
