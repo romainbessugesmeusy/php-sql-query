@@ -7,13 +7,13 @@
  * To change this template use File | Settings | File Templates.
  */
 
-namespace RBM\SqlQuery\RendererAdapter;
+namespace RBM\SqlQuery\Renderer;
 
-use RBM\SqlQuery\AbstractRenderer;
+use RBM\SqlQuery\GenericRenderer;
 use RBM\SqlQuery\Column;
 use RBM\SqlQuery\Table;
 
-class MySql extends AbstractRenderer
+class MySql extends GenericRenderer
 {
 
     protected function _renderColumn(Column $column)
@@ -28,7 +28,6 @@ class MySql extends AbstractRenderer
 
     protected function _enclose($string, $char = '`')
     {
-        return $string;
         return $char.$string.$char;
     }
 

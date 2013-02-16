@@ -22,7 +22,7 @@ use RBM\SqlQuery\Select;
 use RBM\SqlQuery\Table;
 use RBM\SqlQuery\Update;
 
-abstract class AbstractRenderer implements IRenderer
+class GenericRenderer implements IRenderer
 {
     public function render(IQuery $query)
     {
@@ -191,7 +191,7 @@ abstract class AbstractRenderer implements IRenderer
      */
     protected function _renderNull()
     {
-        return "NULL";
+        return " NULL ";
     }
 
     /**
@@ -199,7 +199,7 @@ abstract class AbstractRenderer implements IRenderer
      */
     protected function _renderIsNull()
     {
-        return "IS NULL";
+        return " IS NULL ";
     }
 
     /**
@@ -207,7 +207,7 @@ abstract class AbstractRenderer implements IRenderer
      */
     protected function _renderIsNotNull()
     {
-        return "IS NOT NULL";
+        return " IS NOT NULL ";
     }
 
     /**

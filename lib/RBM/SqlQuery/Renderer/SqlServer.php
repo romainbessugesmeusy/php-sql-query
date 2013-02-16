@@ -7,14 +7,14 @@
  * To change this template use File | Settings | File Templates.
  */
 
-namespace RBM\SqlQuery\RendererAdapter;
+namespace RBM\SqlQuery\Renderer;
 
-use RBM\SqlQuery\AbstractRenderer;
+use RBM\SqlQuery\GenericRenderer;
 use RBM\SqlQuery\Filter;
 use RBM\SqlQuery\RendererException;
 use RBM\SqlQuery\Select;
 
-class SqlServer extends AbstractRenderer
+class SqlServer extends GenericRenderer
 {
 
     public function _renderSelect(Select $select)

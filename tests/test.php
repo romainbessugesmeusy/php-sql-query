@@ -29,7 +29,7 @@ $select->setTable("project");
 $select->setColumns(["project_id", "name"]);
 $select->limit(0, 10);
 
-$renderer = new \RBM\SqlQuery\RendererAdapter\MySql();
+$renderer = new \RBM\SqlQuery\Renderer\MySql();
 
 echo $renderer->render($select) ;
 echo PHP_EOL;
@@ -43,7 +43,7 @@ $select->filter()
     ->between("Date", "2012-01-01", "2012-03-01");
 $select->join("Author", "AuthorId")->cols("Name", "Title");
 
-$renderer = new \RBM\SqlQuery\RendererAdapter\SqlServer();
+$renderer = new \RBM\SqlQuery\Renderer\SqlServer();
 
 echo $renderer->render($select) ;
 
@@ -72,7 +72,7 @@ $select2->setTable("Client");
 $select2->cols("Name");
 $select2->filter()->equals("MainProject", $select1);
 
-$renderer = new \RBM\SqlQuery\RendererAdapter\MySql();
+$renderer = new \RBM\SqlQuery\Renderer\MySql();
 echo $renderer->render($select2);
 
 echo PHP_EOL;
@@ -81,3 +81,16 @@ $select3 = new \RBM\SqlQuery\Select("project");
 echo $renderer->render($select3);
 
 echo PHP_EOL;
+
+$select = new \RBM\SqlQuery\Select('project', ['project_id', 'name']);
+$select->filter()
+    ->equals('owner_id', 1)
+    ->isNull('date_deleted');
+
+
+	$select->filter()->subFilter()
+        ->operator('OR')
+        ->equals('status', 'DRAFT')
+        ->equals('status', 'PUBLISHED');
+
+echo $renderer->render($select);
