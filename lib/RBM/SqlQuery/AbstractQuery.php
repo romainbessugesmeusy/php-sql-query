@@ -36,10 +36,10 @@ namespace RBM\SqlQuery;
 abstract class AbstractQuery implements IQuery
 {
 
+    /** @var IRenderer */
+    protected static $_defaultRenderer;
     /** @var Table */
     protected $_table;
-    /** @var IRenderer */
-    protected $_defaultRenderer;
     /** @var string */
     protected $_filterClass = '\RBM\SqlQuery\Filter';
     /** @var string */
@@ -50,17 +50,17 @@ abstract class AbstractQuery implements IQuery
     /**
      * @param IRenderer $defaultRenderer
      */
-    public function setDefaultRenderer(IRenderer $defaultRenderer)
+    public static function setDefaultRenderer(IRenderer $defaultRenderer)
     {
-        $this->_defaultRenderer = $defaultRenderer;
+        self::$_defaultRenderer = $defaultRenderer;
     }
 
     /**
      * @return IRenderer
      */
-    public function getDefaultRenderer()
+    public static function getDefaultRenderer()
     {
-        return $this->_defaultRenderer;
+        return self::$_defaultRenderer;
     }
 
     /**

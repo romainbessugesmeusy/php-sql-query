@@ -413,7 +413,7 @@ class GenericRenderer implements IRenderer
         }
 
         array_walk($clauses, function (&$clause) use ($depth, $indent) {
-            $clause = "\n" . $indent . $clause . "\n";
+            $clause = "\n" . $indent . $clause;
         });
 
         return $clauses;
