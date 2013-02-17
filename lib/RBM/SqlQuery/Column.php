@@ -10,6 +10,9 @@ namespace RBM\SqlQuery;
  */
 class Column
 {
+
+    const ALL = '*';
+
     /** @var Table */
     protected $_table;
 
@@ -63,7 +66,13 @@ class Column
      */
     public function setAlias($alias)
     {
-        $this->_alias = $alias;
+        if(is_null($alias))
+            return $this->_alias = null;
+
+        if($this->isAll())
+            throw new Exception("Can't use alias because column name is ALL (*)");
+
+        $this->_alias = (string) $alias;
     }
 
     /**
@@ -72,5 +81,13 @@ class Column
     public function getAlias()
     {
         return $this->_alias;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isAll()
+    {
+        return $this->getName() == self::ALL;
     }
 }

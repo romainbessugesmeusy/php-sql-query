@@ -4,15 +4,17 @@ namespace RBM\SqlQuery;
 
 class Table
 {
-
-
+    /** @var string */
     protected $_name;
+    /** @var string */
     protected $_alias;
+    /** @var string */
     protected $_schema;
+    /** @var bool */
     protected $_view = false;
 
     /**
-     * @param $name
+     * @param array|string $name use array to quickly set the alias : ["p" => "project"]
      * @param string|null $schema
      */
     public function __construct($name, $schema = null)

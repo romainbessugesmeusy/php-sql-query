@@ -33,19 +33,31 @@
 
 namespace RBM\SqlQuery;
 
-class AbstractQuery implements IQuery
+abstract class AbstractQuery implements IQuery
 {
 
+    /** @var Table */
     protected $_table;
-
     /** @var IRenderer */
     protected $_defaultRenderer;
+    /** @var string */
+    protected $_filterClass = '\RBM\SqlQuery\Filter';
+    /** @var string */
+    protected $_filterOperator = "AND";
+    /** @var Filter */
+    protected $_filter;
 
+    /**
+     * @param IRenderer $defaultRenderer
+     */
     public function setDefaultRenderer(IRenderer $defaultRenderer)
     {
         $this->_defaultRenderer = $defaultRenderer;
     }
 
+    /**
+     * @return IRenderer
+     */
     public function getDefaultRenderer()
     {
         return $this->_defaultRenderer;
@@ -56,9 +68,8 @@ class AbstractQuery implements IQuery
      */
     public function getTable()
     {
-        return Helper::prepareTable($this->_table);
+        return is_null($this->_table) ? null : Helper::prepareTable($this->_table);
     }
-
 
     /**
      * @param $table string|Table
@@ -68,11 +79,97 @@ class AbstractQuery implements IQuery
         $this->_table = $table;
     }
 
+
+    /**
+     * @return Filter
+     */
+    public function getFilter()
+    {
+        return $this->_filter;
+    }
+
+    /**
+     * @param Filter $filter
+     */
+    public function setFilter(Filter $filter)
+    {
+        if($filter->getTable()->getCompleteName() != $this->getTable()->getCompleteName()){
+            throw new Exception('filter table mismatch select table');
+        }
+        $this->_filter = $filter;
+    }
+
+    /**
+     * @return Filter
+     */
+    public function filter()
+    {
+        if (!isset($this->_filter)) {
+            $cls = $this->_filterClass;
+            /** @var $_filter Filter */
+            $this->_filter = new $cls();
+            $this->_filter->setTable($this->_table);
+        }
+        return $this->_filter;
+    }
+
+    /**
+     * @return string
+     */
     public function __toString()
     {
-        if($renderer = static::getDefaultRenderer()){
+        if ($renderer = static::getDefaultRenderer()) {
             return $renderer->render($this);
         }
         return "ERROR: no default renderer specified";
+    }
+
+
+    /**
+     * @return string
+     */
+    public function getFilterClass()
+    {
+        return $this->_filterClass;
+    }
+
+    /**
+     * @param $filterClass
+     */
+    public function setFilterClass($filterClass)
+    {
+        if(isset($this->_filter)){
+            throw new Exception(
+                "Can't specify a Filter Class because the filter has already been created.".
+                    "Call ->setFilterClass() before ->filter()"
+            );
+        }
+
+        if(!class_exists($filterClass)){
+            throw new Exception("The specified Filter Class '$filterClass' could not be found");
+        }
+
+        $ref = new \ReflectionClass($filterClass);
+        if(!$ref->isSubclassOf('\RBM\SqlQuery\Filter')){
+            throw new Exception("The specified Filter Class '$filterClass' does not extend \\RBM\\SqlQuery\\Filter");
+        }
+
+        $this->_filterClass = $filterClass;
+    }
+
+    /**
+     * @return string
+     */
+    public function getFilterOperator()
+    {
+        return $this->_filterOperator;
+    }
+
+    /**
+     * @param string $filterOperator
+     */
+    public function setFilterOperator($filterOperator)
+    {
+        $this->_filterOperator = $filterOperator;
     }
 }

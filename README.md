@@ -134,7 +134,7 @@ The most effective advantage of considering J0IN as SELECT is reusability. Let s
 
 Overloading and inheritance
 ------------
-One intersting feature of this package is that it can be extended to inject business value to the query and filter layer. The finality of inheritance is to objectify the query construction, by making it fluent and business oriented.
+One intersting feature of this package is that it can be extended to customize the query and filter layer. The finality of inheritance is to objectify the query construction, by making it fluent and business oriented.
 
 ###Select
 

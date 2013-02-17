@@ -6,13 +6,16 @@ class Filter
 {
 
     const OPERATOR_GREATER_THAN_OR_EQUAL = '>=';
-    const OPERATOR_GREATER_THAN = '>';
-    const OPERATOR_LOWER_THAN_OR_EQUAL = '<=';
-    const OPERATOR_LOWER_THAN = '<';
-    const OPERATOR_LIKE = 'LIKE';
-    const OPERATOR_NOT_LIKE = 'NOT LIKE';
-    const OPERATOR_EQUAL = '=';
-    const OPERATOR_NOT_EQUAL = '<>';
+    const OPERATOR_GREATER_THAN          = '>';
+    const OPERATOR_LOWER_THAN_OR_EQUAL   = '<=';
+    const OPERATOR_LOWER_THAN            = '<';
+    const OPERATOR_LIKE                  = 'LIKE';
+    const OPERATOR_NOT_LIKE              = 'NOT LIKE';
+    const OPERATOR_EQUAL                 = '=';
+    const OPERATOR_NOT_EQUAL             = '<>';
+
+    const CONJONCTION_AND = 'AND';
+    const CONJONCTION_OR  = 'OR';
 
     /** @var Table */
     protected $_table;
@@ -42,7 +45,7 @@ class Filter
     protected $_subFilters = array();
 
     /** @var string */
-    protected $_operator = "AND";
+    protected $_conjonction = self::CONJONCTION_AND;
 
     /**
      * Deep copy for nested references
@@ -81,12 +84,13 @@ class Filter
     {
         return Helper::prepareTable($this->_table);
     }
+
     /**
      * @return string
      */
-    public function getOperator()
+    public function getConjonction()
     {
-        return $this->_operator;
+        return $this->_conjonction;
     }
 
     /**
@@ -97,6 +101,9 @@ class Filter
         return $this->_subFilters;
     }
 
+    /**
+     * @return Filter
+     */
     public function subFilter()
     {
         /** @var $filter Filter */
@@ -114,11 +121,11 @@ class Filter
      */
     public function compare($col, $value, $operator)
     {
-        $col = $this->_prepareCol($col);
+        $col                  = $this->_prepareCol($col);
         $this->_comparisons[] = array(
-            "subject" => $col,
-            "operator" => $operator,
-            "target" => $value
+            "subject"     => $col,
+            "conjonction" => $operator,
+            "target"      => $value
         );
         return $this;
     }
@@ -233,11 +240,11 @@ class Filter
      */
     public function between($col, $a, $b)
     {
-        $col = $this->_prepareCol($col);
+        $col               = $this->_prepareCol($col);
         $this->_betweens[] = array(
-            "column" => $col,
-            "a" => $a,
-            "b" => $b,
+            "subject" => $col,
+            "a"       => $a,
+            "b"       => $b,
         );
         return $this;
     }
@@ -248,9 +255,9 @@ class Filter
      */
     public function isNull($col)
     {
-        $col = $this->_prepareCol($col);
+        $col             = $this->_prepareCol($col);
         $this->_isNull[] = array(
-            "column" => $col,
+            "subject" => $col,
         );
         return $this;
     }
@@ -261,9 +268,9 @@ class Filter
      */
     public function isNotNull($col)
     {
-        $col = $this->_prepareCol($col);
+        $col                = $this->_prepareCol($col);
         $this->_isNotNull[] = array(
-            "column" => $col,
+            "subject" => $col,
         );
         return $this;
     }
@@ -275,10 +282,10 @@ class Filter
      */
     public function addBitClause($column, $value)
     {
-        $col = $this->_prepareCol($column);
+        $col               = $this->_prepareCol($column);
         $this->_booleans[] = array(
-            "column" => $col,
-            "value" => ($value),
+            "subject" => $col,
+            "value"   => ($value),
         );
         return $this;
     }
@@ -291,7 +298,6 @@ class Filter
     {
         return Helper::prepareColumn($col, $this->getTable());
     }
-
 
 
     /**
@@ -315,9 +321,15 @@ class Filter
      * @param $operator
      * @return $this
      */
-    public function operator($operator)
+    public function conjonction($operator)
     {
-        $this->_operator = $operator;
+        if (!in_array($operator, array(self::CONJONCTION_AND, self::CONJONCTION_OR))) {
+            throw new Exception(
+                "Invalid conjonction specified, must be one of \\RBM\\SqlQuery\\Filter::CONJONCTION_AND"
+                . "or \\RBM\\SqlQuery\\Filter::CONJONCTION_OR. '" . $operator . "' given."
+            );
+        }
+        $this->_conjonction = $operator;
         return $this;
     }
 

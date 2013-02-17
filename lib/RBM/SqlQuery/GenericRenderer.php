@@ -24,6 +24,32 @@ use RBM\SqlQuery\Update;
 
 class GenericRenderer implements IRenderer
 {
+    /**
+     * @var bool
+     */
+    protected $_prettyPrinting = true;
+
+    /**
+     * @return bool
+     */
+    public function getPrettyPrinting()
+    {
+        return $this->_prettyPrinting;
+    }
+
+    /**
+     * @param bool $prettyPrinting
+     */
+    public function setPrettyPrinting($prettyPrinting)
+    {
+        $this->_prettyPrinting = $prettyPrinting;
+    }
+
+    /**
+     * @param IQuery $query
+     * @return string
+     * @throws RendererException
+     */
     public function render(IQuery $query)
     {
         if ($query instanceof Select) return $this->_renderSelect($query);
@@ -34,39 +60,90 @@ class GenericRenderer implements IRenderer
         throw new RendererException("Query must be an instance of Select, Update, Delete or Insert");
     }
 
-    protected function _renderSelect(Select $select)
+    /**
+     * @param Select $select
+     * @return string
+     */
+    public function _renderSelectColumns(Select $select)
     {
-        if ($select->getIsJoin()) {
-            return $this->_renderJoin($select);
-        }
-
-        $parts = array();
-        $cols  = ($select->getForcedColumns()) ? $select->getForcedColumns() : $select->getAllColumns();
+        $cols = ($select->getForcedColumns()) ? $select->getForcedColumns() : $select->getAllColumns();
 
         array_walk($cols, function (&$col) {
             $col = $this->_renderColumnWithAlias($col);
         });
 
-        $parts[] = "SELECT";
-        $parts[] = "\t" . implode("\n\t, ", $cols);
-        $parts[] = "FROM";
-        $parts[] = "\t" . $this->_renderTableWithAlias($select->getTable());
+        if ($this->getPrettyPrinting()) {
+            $prefix    = "\t  ";
+            $separator = "\n\t, ";
+        } else {
+            $prefix    = " ";
+            $separator = ", ";
+        }
+        return $prefix . implode($separator, $cols);
+    }
+
+    public function _renderSelectFrom(Select $select)
+    {
+
+        $str = "FROM";
+        $str .= $this->getPrettyPrinting() ? "\n\t" : " ";
+        $str .= $this->_renderTableWithAlias($select->getTable());
+        return $str;
+
+    }
+
+    /**
+     * @param Select $select
+     * @return string
+     */
+    public function _renderSelectJoins(Select $select)
+    {
+        $str = "";
 
         $joins = $select->getAllJoins();
 
-        array_walk($joins, function (&$join) {
-            $join = $this->_renderJoin($join);
-        });
+        if (!empty($joins)) {
+            array_walk($joins, function (&$join) {
+                $join = $this->_renderJoin($join);
+            });
 
-        $parts[] = implode("\n", $joins);
+            $separator = ($this->getPrettyPrinting()) ? "\n" : " ";
+            $str       = implode($separator, $joins);
+        }
+        return $str;
+    }
+
+    /**
+     * @param Select $select
+     * @return string
+     */
+    public function _renderSelectWhere(Select $select)
+    {
+        $str = "";
 
         $filters = $this->_renderSelectFilters($select->getAllFilters());
 
         if (count($filters)) {
-            $parts[] = "WHERE";
-            $parts[] = implode($select->getFilterOperator() . ' ', $filters);
-        }
+            $str = "WHERE";
 
+            if ($this->getPrettyPrinting()) {
+                $separator = "\n" . $this->_renderConjonction($select->getFilterOperator()) . " ";
+            } else {
+                $separator = " " . $this->_renderConjonction($select->getFilterOperator()) . " ";
+            }
+
+            $str .= implode($separator, $filters);
+        }
+        return $str;
+    }
+
+    /**
+     * @param Select $select
+     * @return string
+     */
+    public function _renderSelectGroupBy(Select $select)
+    {
+        $str = "";
         if (count($select->getGroup())) {
 
             $groupCols = $select->getGroup();
@@ -75,24 +152,54 @@ class GenericRenderer implements IRenderer
                 $col = $this->_renderColumn($col);
             });
 
-            $parts[] = "GROUP BY";
-            $parts[] = "\t" . implode(', ', $groupCols);
+            $str = "GROUP BY";
+
+            if ($this->getPrettyPrinting()) {
+                $str .= "\n\t  ";
+                $separator = "\n\t, ";
+            } else {
+                $str .= " ";
+                $separator = ", ";
+            }
+
+            $str .= implode($separator, $groupCols);
         }
 
+        return $str;
+    }
 
-        if (count($select->getAllOrderBy())) {
-
-            $orderBys = $select->getAllOrderBy();
-
-            array_walk($orderBys, function (&$orderBy) {
-                $orderBy = $this->_renderOrderBy($orderBy);
-            });
-
-            $parts[] = "ORDER BY";
-            $parts[] = "\t" . implode(', ', $orderBys);
+    /**
+     * @param Select $select
+     * @return string
+     */
+    protected function _renderSelect(Select $select)
+    {
+        if ($select->getIsJoin()) {
+            return $this->_renderJoin($select);
         }
 
-        $parts[] = $this->_renderLimit($select);
+        $parts = array();
+
+        $parts[] = "SELECT";
+        $parts[] = $this->_renderSelectColumns($select);
+
+        $parts[] = $this->_renderSelectFrom($select);
+
+        if ($joins = $this->_renderSelectJoins($select))
+            $parts[] = $joins;
+
+        if ($where = $this->_renderSelectWhere($select))
+            $parts[] = $where;
+
+        if ($groupBy = $this->_renderSelectGroupBy($select))
+            $parts[] = $groupBy;
+
+        if ($orderBy = $this->_renderSelectOrderBy($select))
+            $parts[] = $orderBy;
+
+        if ($limit = $this->_renderSelectLimit($select))
+            $parts[] = $limit;
+
 
         $sql = implode("\n", $parts);
 
@@ -181,7 +288,7 @@ class GenericRenderer implements IRenderer
      * @param $operator
      * @return mixed
      */
-    protected function _renderOperator($operator)
+    protected function _renderConjonction($operator)
     {
         return $operator;
     }
@@ -226,10 +333,22 @@ class GenericRenderer implements IRenderer
     protected function _renderJoin(Select $select)
     {
         $sql = ($select->getJoinType()) ? "{$select->getJoinType()} " : "";
-        return $sql . "JOIN\n\t{$this->_renderTableWithAlias($select->getTable())} ON {$this->_renderFilter($select->getJoinCondition())}";
+        $sql .= "JOIN";
+        if ($this->getPrettyPrinting()) {
+            $sql .= "\n\t";
+            $on = "\n\tON ";
+        } else {
+            $sql .= " ";
+            $on = " ON ";
+        }
+        $sql .= $this->_renderTableWithAlias($select->getTable());
+        $sql .= $on;
+        $sql .= $this->_renderFilter($select->getJoinCondition(), 1);
+        return $sql;
     }
 
     /**
+     * @todo make it better
      * @param \RBM\SqlQuery\Func $func
      * @return string
      */
@@ -246,37 +365,38 @@ class GenericRenderer implements IRenderer
      */
     protected function _renderSelectFilters(array $filters)
     {
-        $filtersStr = array();
-        foreach ($filters as $filter) {
-            if ($str = trim((string)$this->_renderFilter($filter), "\t\n ")) {
-                $filtersStr[] = "\t$str\n";
-            }
-        }
-        return $filtersStr;
+        array_walk($filters, function (& $filter) {
+            $filter = $this->_renderFilter($filter);
+        });
+        return $filters;
     }
 
     /**
      * @param Filter $filter
      * @return string
      */
-    protected function _renderFilter(Filter $filter)
+    protected function _renderFilter(Filter $filter, $depth = 0)
     {
         if ($filter->isEmpty()) {
             return '';
         }
 
-        $clauses = $this->_renderFilterClauses($filter);
-
-        return implode("\n {$this->_renderOperator($filter->getOperator())} ", $clauses);
+        $indent  = str_repeat("\t", $depth);
+        $clauses = $this->_renderFilterClauses($filter, $depth);
+        return implode("$indent " . $this->_renderConjonction($filter->getConjonction()) . " ", $clauses);
 
     }
 
     /**
      * @param Filter $filter
+     * @param int $depth
      * @return array
      */
-    protected function _renderFilterClauses(Filter $filter)
+    protected function _renderFilterClauses(Filter $filter, $depth = 0)
     {
+
+        $depth++;
+        $indent = str_repeat("\t", $depth);
 
         $ins         = $this->_renderFilterIns($filter);
         $notIns      = $this->_renderFilterNotIns($filter);
@@ -288,13 +408,14 @@ class GenericRenderer implements IRenderer
 
         $clauses = array_merge($ins, $notIns, $betweens, $comparisons, $isNulls, $isNotNulls, $booleans);
 
-        $clauses = array_filter($clauses, function ($var) {
-            return (trim((string)$var, "\t\n "));
+        foreach ($filter->getSubFilters() as $subFilter) {
+            $clauses[] = "(\n{$this->_renderFilter($subFilter, $depth + 1)} \n$indent)\n";
+        }
+
+        array_walk($clauses, function (&$clause) use ($depth, $indent) {
+            $clause = "\n" . $indent . $clause . "\n";
         });
 
-        foreach ($filter->getSubFilters() as $subFilter) {
-            $clauses[] = "({$this->_renderFilter($subFilter)})";
-        }
         return $clauses;
     }
 
@@ -345,7 +466,7 @@ class GenericRenderer implements IRenderer
         $betweens = $filter->getBetweens();
         array_walk($betweens, function (&$between) {
             $between = "( "
-                . $this->_renderColumn($between["column"])
+                . $this->_renderColumn($between["subject"])
                 . " BETWEEN "
                 . $this->_renderValue($between["a"])
                 . " AND "
@@ -365,7 +486,7 @@ class GenericRenderer implements IRenderer
         $comparisons = $filter->getComparisons();
         array_walk($comparisons, function (&$comparison) {
             $str = ($comparison["subject"] instanceof Column) ? $this->_renderColumn($comparison["subject"]) : $this->_renderValue($comparison["subject"]);
-            $str .= $this->_renderOperator($comparison["operator"]);
+            $str .= $this->_renderConjonction($comparison["conjonction"]);
             if ($comparison["target"] instanceof Column) {
                 $str .= $this->_renderColumn($comparison["target"]);
             } elseif ($comparison["target"] instanceof IQuery) {
@@ -386,7 +507,7 @@ class GenericRenderer implements IRenderer
     {
         $isNulls = $filter->getIsNull();
         array_walk($isNulls, function (&$isNull) {
-            $isNull = "( " . $this->_renderColumn($isNull["column"]) . $this->_renderIsNull() . " )";
+            $isNull = "( " . $this->_renderColumn($isNull["subject"]) . $this->_renderIsNull() . " )";
         });
 
         return $isNulls;
@@ -400,7 +521,7 @@ class GenericRenderer implements IRenderer
     {
         $isNotNulls = $filter->getIsNotNull();
         array_walk($isNotNulls, function (&$isNotNull) {
-            $isNotNull = "( " . $this->_renderColumn($isNotNull["column"]) . $this->_renderIsNotNull() . " )";
+            $isNotNull = "( " . $this->_renderColumn($isNotNull["subject"]) . $this->_renderIsNotNull() . " )";
         });
         return $isNotNulls;
     }
@@ -414,7 +535,7 @@ class GenericRenderer implements IRenderer
         $booleans = $filter->getBooleans();
         array_walk($booleans, function (&$boolean) {
             $boolean = "(ISNULL("
-                . $this->_renderColumn($boolean["column"])
+                . $this->_renderColumn($boolean["subject"])
                 . ", 0) = "
                 . $this->_renderBoolean($boolean["value"])
                 . " )";
@@ -426,10 +547,28 @@ class GenericRenderer implements IRenderer
      * @param Table $table
      * @return string
      */
+    protected function _renderTableSchema(Table $table)
+    {
+        return $table->getSchema();
+    }
+
+    /**
+     * @param Table $table
+     * @return string
+     */
     protected function _renderTable(Table $table)
     {
-        $schema = ($table->getSchema()) ? "{$table->getSchema()}." : '';
-        return $schema . $table->getName();
+        $schema = ($table->getSchema()) ? "{$this->_renderTableSchema($table->getSchema())}." : '';
+        return $schema . $this->_renderTableName($table);
+    }
+
+    /**
+     * @param Table $table
+     * @return string
+     */
+    protected function _renderTableName(Table $table)
+    {
+        return $table->getName();
     }
 
     /**
@@ -439,8 +578,38 @@ class GenericRenderer implements IRenderer
     protected function _renderTableWithAlias(Table $table)
     {
         $alias  = ($table->getAlias()) ? " AS {$table->getAlias()}" : '';
-        $schema = ($table->getSchema()) ? "{$table->getSchema()}." : '';
-        return $schema . $table->getName() . $alias;
+        $schema = ($table->getSchema()) ? "{$this->_renderTableSchema($table)}." : '';
+        return $schema . $this->_renderTableName($table) . $alias;
+    }
+
+    /**
+     * @param Select $select
+     * @return string
+     */
+    protected function _renderSelectOrderBy(Select $select)
+    {
+        $str = "";
+
+        if (count($select->getAllOrderBy())) {
+
+            $orderBys = $select->getAllOrderBy();
+
+            array_walk($orderBys, function (&$orderBy) {
+                $orderBy = $this->_renderOrderBy($orderBy);
+            });
+
+            $str = "ORDER BY";
+            if ($this->getPrettyPrinting()) {
+                $str .= "\n\t  ";
+                $separator = "\n\t, ";
+            } else {
+                $str .= " ";
+                $separator = ", ";
+            }
+            $str .= implode($separator, $orderBys);
+        }
+
+        return $str;
     }
 
     /**
@@ -473,7 +642,20 @@ class GenericRenderer implements IRenderer
             $table = $this->_renderTable($column->getTable());
         }
 
-        return "{$table}.{$column->getName()}";
+        return "{$table}.{$this->_renderColumnName($column)}";
+    }
+
+    /**
+     * @param Column $column
+     * @return string
+     */
+    protected function _renderColumnName(Column $column)
+    {
+        $name = $column->getName();
+        if ($name === Column::ALL)
+            return $this->_renderColumnAll();
+
+        return $name;
     }
 
     /**
@@ -482,17 +664,26 @@ class GenericRenderer implements IRenderer
      */
     protected function _renderColumnWithAlias(Column $column)
     {
-        if ($alias = $column->getAlias()) {
+        if (($alias = $column->getAlias()) && !$column->isAll())
             return $this->_renderColumn($column) . " AS " . $alias;
-        }
+
         return $this->_renderColumn($column);
+    }
+
+    /**
+     * @param Column $column
+     * @return string
+     */
+    protected function _renderColumnAll()
+    {
+        return '*';
     }
 
     /**
      * @param Select $select
      * @return string
      */
-    protected function _renderLimit(Select $select)
+    protected function _renderSelectLimit(Select $select)
     {
         $mask = is_null($select->getLimitStart()) ? '0' : '1';
         $mask .= is_null($select->getLimitCount()) ? '0' : '1';

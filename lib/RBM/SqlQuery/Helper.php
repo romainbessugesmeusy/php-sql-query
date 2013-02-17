@@ -14,11 +14,17 @@ class Helper
     public static function prepareColumns($arg, $table = null)
     {
         $columns = (!is_array($arg)) ? array($arg) : $arg;
-        array_walk($columns, function(&$column) use ($table)
-        {
+
+        $preparedColumns = array();
+
+        foreach ($columns as $index => $column) {
             $column = Helper::prepareColumn($column, $table);
-        });
-        return $columns;
+            if (!is_int($index))
+                $column->setAlias($index);
+
+            $preparedColumns[] = $column;
+        }
+        return $preparedColumns;
     }
 
 
@@ -33,12 +39,12 @@ class Helper
         if (is_string($arg)) {
             /** @var $table Table */
             $arg = new Column($arg, $table);
-        } else if (is_array($arg)){
-            $v = array_values($arg);
-            $k = array_keys($arg);
+        } else if (is_array($arg)) {
+            $v   = array_values($arg);
+            $k   = array_keys($arg);
             $arg = new Column($v[0], $table, $k[0]);
         } else if (!is_a($arg, '\RBM\SqlQuery\Column')) {
-            throw new Exception('Invalid column provided, string or Column expected');
+            throw new Exception('Invalid column provided, string or \RBM\SqlQuery\Column expected');
         }
         return $arg;
     }
@@ -53,13 +59,13 @@ class Helper
     {
         if (is_string($arg)) {
             $arg = new Table($arg);
-        } else if (is_array($arg)){
-            $v = array_values($arg);
-            $k = array_keys($arg);
+        } else if (is_array($arg)) {
+            $v   = array_values($arg);
+            $k   = array_keys($arg);
             $arg = new Table($v[0]);
             $arg->setAlias($k[0]);
         } else if (!is_a($arg, '\RBM\SqlQuery\Table')) {
-            throw new Exception('Invalid table provided, string or Table expected : '.gettype($arg).' given\n');
+            throw new Exception('Invalid table provided, string or \RBM\SqlQuery\Table expected : ' . gettype($arg) . ' given\n');
         }
         return $arg;
     }

@@ -17,4 +17,19 @@ interface IQuery {
      */
     public function getTable();
 
+    /**
+     * @return Filter
+     */
+    public function getFilter();
+
+    /**
+     * @param Filter $filter
+     */
+    public function setFilter(Filter $filter);
+
+    /**
+     * @return Filter
+     */
+    public function filter();
+
 }

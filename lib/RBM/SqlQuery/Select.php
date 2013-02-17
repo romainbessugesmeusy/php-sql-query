@@ -7,10 +7,9 @@ class Select extends AbstractQuery
     const JOIN_LEFT = 'LEFT';
     const JOIN_RIGHT = 'RIGHT';
     const JOIN_INNER = 'INNER';
+
     /** @var Table */
     protected $_table;
-    /** @var Filter */
-    protected $_filter;
     /** @var Filter */
     protected $_joinCondition;
     /** @var Column[] */
@@ -28,10 +27,6 @@ class Select extends AbstractQuery
     /** @var int */
     protected $_limitCount;
     /** @var string */
-    protected $_filterClass = '\RBM\SqlQuery\Filter';
-    /** @var string */
-    protected $_filterOperator = "AND";
-    /** @var string */
     protected $_camelizedTableName = "";
     /** @var bool */
     protected $_isJoin = false;
@@ -42,7 +37,7 @@ class Select extends AbstractQuery
      * @param string|Table|null $table
      * @param string|array|Column[] $cols
      */
-    public function __construct($table = null, $cols = "*")
+    public function __construct($table = null, $cols = array(Column::ALL))
     {
         if ($table)
             $this->setTable($table);
@@ -51,6 +46,9 @@ class Select extends AbstractQuery
             $this->setColumns($cols);
     }
 
+    /**
+     * @return Select
+     */
     public function __clone()
     {
         return unserialize(serialize($this));
@@ -101,6 +99,42 @@ class Select extends AbstractQuery
     }
 
     /**
+     * @param Select $select
+     * @param string $selfColumn
+     * @param string $refColumn
+     * @return Select
+     */
+    public function addJoin(Select $select, $selfColumn = null, $refColumn = null)
+    {
+        $key = (string)$select->getTable()->getCompleteName();
+        if (isset($this->_joins[$key])) {
+            return $this->_joins[$key];
+        }
+
+        $select->isJoin();
+
+        if (!is_null($selfColumn)) {
+            if (is_null($refColumn)) {
+                $refColumn = $selfColumn;
+            }
+
+            $select->joinCondition()->equals($refColumn, Helper::prepareColumn($selfColumn, $this->getTable()));
+        }
+
+        $this->_joins[$key] = $select;
+
+        return $this->_joins[$key];
+    }
+
+    /**
+     * Transforms Select in a joint
+     */
+    public function isJoin($isJoin = true)
+    {
+        $this->_isJoin = $isJoin;
+    }
+
+    /**
      * @return boolean
      */
     public function getIsJoin()
@@ -148,7 +182,16 @@ class Select extends AbstractQuery
      */
     public function cols()
     {
-        $this->_columns = func_get_args();
+        switch (func_num_args()){
+            case 0 :
+                $this->_columns = array();
+                return $this;
+            case 1 :
+                $arg = func_get_arg(0);
+                $this->setColumns($arg);
+                return $this;
+        }
+        $this->setColumns(func_get_args());
         return $this;
     }
 
@@ -162,38 +205,9 @@ class Select extends AbstractQuery
         return $this;
     }
 
-    /**
-     * @return Filter
-     */
-    public function getFilter()
-    {
-        return $this->_filter;
-    }
 
     /**
-     * @param Filter $filter
-     */
-    public function setFilter(Filter $filter)
-    {
-        $this->_filter = $filter;
-    }
-
-    /**
-     * @return Filter
-     */
-    public function filter()
-    {
-        if (!isset($this->_filter)) {
-            $cls = $this->_filterClass;
-            /** @var $_filter Filter */
-            $this->_filter = new $cls();
-            $this->_filter->setTable($this->_table);
-        }
-        return $this->_filter;
-    }
-
-    /**
-     * @return array
+     * @return Column[]
      */
     public function getAllColumns()
     {
@@ -212,6 +226,9 @@ class Select extends AbstractQuery
      */
     public function getColumns()
     {
+        if(is_null($this->_table)){
+            throw new Exception("No table specified for the Select instance");
+        }
         return Helper::prepareColumns($this->_columns, $this->getTable());
     }
 
@@ -224,51 +241,6 @@ class Select extends AbstractQuery
             $columns = array($columns);
         }
         $this->_columns = $columns;
-    }
-
-    /**
-     * Transforms Select in a joint
-     */
-    public function isJoin($isJoin = true)
-    {
-        $this->_isJoin = $isJoin;
-    }
-
-
-    /**
-     * Supprime toutes les clauses de tri
-     */
-    public function removeOrder()
-    {
-        $this->_orderBy = array();
-    }
-
-    /**
-     * @param Select $select
-     * @param string $selfColumn
-     * @param string $refColumn
-     * @return Select
-     */
-    public function addJoin(Select $select, $selfColumn = null, $refColumn = null)
-    {
-        $key = (string)$select->getTable()->getCompleteName();
-        if (isset($this->_joins[$key])) {
-            return $this->_joins[$key];
-        }
-
-        $select->isJoin();
-
-        if (!is_null($selfColumn)) {
-            if (is_null($refColumn)) {
-                $refColumn = $selfColumn;
-            }
-
-            $select->joinCondition()->equals($refColumn, Helper::prepareColumn($selfColumn, $this->getTable()));
-        }
-
-        $this->_joins[$key] = $select;
-
-        return $this->_joins[$key];
     }
 
     /**
@@ -307,6 +279,8 @@ class Select extends AbstractQuery
 
     /**
      * @return string
+     * @todo refactor... this is pure SQL Server
+     * @todo for MYSQL, look for the MYSQL_CALC_FOUND_ROWS
      */
     public function count()
     {
@@ -345,37 +319,6 @@ class Select extends AbstractQuery
         return $this;
     }
 
-    /**
-     * @return string
-     */
-    public function getFilterClass()
-    {
-        return $this->_filterClass;
-    }
-
-    /**
-     * @param $filterClass
-     */
-    public function setFilterClass($filterClass)
-    {
-        $this->_filterClass = $filterClass;
-    }
-
-    /**
-     * @return string
-     */
-    public function getFilterOperator()
-    {
-        return $this->_filterOperator;
-    }
-
-    /**
-     * @param string $filterOperator
-     */
-    public function setFilterOperator($filterOperator)
-    {
-        $this->_filterOperator = $filterOperator;
-    }
 
     /**
      * @param $joins Select[]
@@ -444,6 +387,14 @@ class Select extends AbstractQuery
     public function setForcedColumns($forcedColumns)
     {
         $this->_forcedColumns = $forcedColumns;
+    }
+
+    /**
+     * Supprime toutes les clauses de tri
+     */
+    public function removeOrder()
+    {
+        $this->_orderBy = array();
     }
 
     /**

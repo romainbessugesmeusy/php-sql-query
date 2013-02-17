@@ -86,7 +86,7 @@ class SqlServer extends GenericRenderer
         return $sql;
     }
 
-    protected function _renderLimit(Select $select)
+    protected function _renderSelectLimit(Select $select)
     {
         return '';
     }

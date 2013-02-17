@@ -44,6 +44,9 @@ class OrderBy
      */
     public function setDirection($direction)
     {
+        if(!in_array($direction, array(self::ASC, self::DESC))){
+            throw new \InvalidArgumentException("Specified direction '$direction' is not allowed");
+        }
         $this->_direction = $direction;
     }
 

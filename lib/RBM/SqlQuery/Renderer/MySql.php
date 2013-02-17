@@ -16,19 +16,18 @@ use RBM\SqlQuery\Table;
 class MySql extends GenericRenderer
 {
 
-    protected function _renderColumn(Column $column)
+    protected function _renderColumnName(Column $column)
     {
-        return $this->_enclose(parent::_renderColumn($column));
+        return $this->_enclose(parent::_renderColumnName($column));
     }
 
-    protected function _renderTable(Table $table)
+    protected function _renderTableName(Table $table)
     {
-        return $this->_enclose(parent::_renderTable($table));
+        return $this->_enclose(parent::_renderTableName($table));
     }
 
     protected function _enclose($string, $char = '`')
     {
         return $char.$string.$char;
     }
-
 }
