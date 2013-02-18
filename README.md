@@ -168,7 +168,7 @@ Creating a filter for our project table is straightforward:
 		}
 	}
 
-To use this filter, you'll have to modified the static `filterClass` property from the select we just created or specify it as a parameter of the `->filter()` method:
+To use this filter, you'll have to modified the `filterClass` property from the select:
 	
 	$projects = new ProjectSelect();
 	$projects->filter()->deleted(true);

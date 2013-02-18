@@ -1,13 +1,13 @@
 <?php
 /**
- * Kloook API
+ * php-sql-query
  *
- * @author      Romain Bessuges <romain@kloook.com>
- * @copyright   2013 Kloook
- * @link        http://api.kloook.com
- * @license     http://api.kloook.com/license
- * @version     0.1.0
- * @package     Kloook
+ * @author      Romain Bessuges <romainbessuges@gmail.com>
+ * @copyright   2013 Romain Bessuges
+ * @link        http://github.com/romainbessugesmeusy/php-sql-query
+ * @license     http://github.com/romainbessugesmeusy/php-sql-query
+ * @version     0.1
+ * @package     php-sql-query
  *
  * MIT LICENSE
  *
