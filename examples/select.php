@@ -6,6 +6,7 @@ use RBM\SqlQuery\Select;
 use RBM\SqlQuery\Renderer\MySql;
 use RBM\SqlQuery\OrderBy;
 use RBM\SqlQuery\Filter;
+use RBM\SqlQuery\Func;
 
 Select::setDefaultRenderer(new MySql());
 
@@ -44,4 +45,13 @@ $select->filter()
     ->equals('status', 'DRAFT')
     ->equals('status', 'PUBLISHED')
     ->conjonction(Filter::CONJONCTION_OR);
+
+printQuery($select);
+
+$select->cols([
+    "project_count" => new Func("COUNT", ['project_id']),
+]);
+
+$select->setGroup($select->join("user")->getColumns());
+
 printQuery($select);

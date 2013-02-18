@@ -291,9 +291,20 @@ class GenericRenderer implements IRenderer
      */
     protected function _renderValue($value)
     {
-        if (is_string($value)) return "'" . str_replace("'", "''", $value) . "'";
-        if (is_bool($value)) return $this->_renderBoolean($value);
-        if ($value instanceof IQuery) return $this->render($value);
+
+        if (is_string($value))
+            return $this->_renderString($value);
+
+        if (is_bool($value))
+            return $this->_renderBoolean($value);
+
+        if ($value instanceof IQuery)
+            return $this->render($value);
+
+        if ($value instanceof Token)
+            return $this->_renderToken($value);
+
+
         return $value;
     }
 
@@ -316,6 +327,15 @@ class GenericRenderer implements IRenderer
     protected function _renderConjonction($operator)
     {
         return $operator;
+    }
+
+    /**
+     * @param $value
+     * @return string
+     */
+    protected function _renderString($value)
+    {
+        return "'" . str_replace("'", "\\'", $value) . "'";
     }
 
     /**
@@ -349,6 +369,11 @@ class GenericRenderer implements IRenderer
     protected function _renderBoolean($value)
     {
         return ($value) ? "1" : "0";
+    }
+
+    protected function _renderCurrentTimestamp()
+    {
+        return 'CURRENT_TIMESTAMP';
     }
 
     /**
@@ -722,5 +747,13 @@ class GenericRenderer implements IRenderer
                 return "LIMIT{$separator}0, {$select->getLimitCount()}";
         }
         return '';
+    }
+
+    protected function _renderToken(Token $token)
+    {
+        switch ($token->getValue()) {
+            default :
+                return $token->getValue();
+        }
     }
 }

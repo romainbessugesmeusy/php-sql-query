@@ -87,17 +87,20 @@ class Filter
         return unserialize(serialize($this));
     }
 
+    /**
+     * @return bool
+     */
     public function isEmpty()
     {
         return
-            count($this->_comparisons) +
-            count($this->_booleans) +
-            count($this->_betweens) +
-            count($this->_isNotNull) +
-            count($this->_isNull) +
-            count($this->_ins) +
-            count($this->_notIns) +
-            count($this->_subFilters) == 0;
+            empty($this->_comparisons) &&
+            empty($this->_booleans) &&
+            empty($this->_betweens) &&
+            empty($this->_isNotNull) &&
+            empty($this->_isNull) &&
+            empty($this->_ins) &&
+            empty($this->_notIns) &&
+            empty($this->_subFilters);
     }
 
     /**
@@ -368,7 +371,7 @@ class Filter
         if (!in_array($operator, array(self::CONJONCTION_AND, self::CONJONCTION_OR))) {
             throw new Exception(
                 "Invalid conjonction specified, must be one of \\RBM\\SqlQuery\\Filter::CONJONCTION_AND"
-                . "or \\RBM\\SqlQuery\\Filter::CONJONCTION_OR. '" . $operator . "' given."
+                    . "or \\RBM\\SqlQuery\\Filter::CONJONCTION_OR. '" . $operator . "' given."
             );
         }
         $this->_conjonction = $operator;

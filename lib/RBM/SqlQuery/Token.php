@@ -31,30 +31,59 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-namespace RBM\SqlQuery\Renderer;
 
-use RBM\SqlQuery\GenericRenderer;
-use RBM\SqlQuery\Column;
-use RBM\SqlQuery\Table;
+namespace RBM\SqlQuery;
 
-class MySql extends GenericRenderer
+class Token
 {
+    const SELECT          = "SELECT";
+    const FROM            = "FROM";
+    const ALIAS           = "AS";
+    const JOIN            = "JOIN";
+    const LEFT            = "LEFT";
+    const RIGHT           = "RIGHT";
+    const INNER           = "INNER";
+    const OUTER           = "OUTER";
+    const INTO            = "INTO";
+    const VALUES          = "VALUES";
+    const WHERE           = "WHERE";
+    const LIMIT           = "LIMIT";
+    const GROUP_BY        = "GROUP BY";
+    const ORDER_BY        = "ORDER BY";
+    const ASC             = "ASC";
+    const DESC            = "DESC";
+    const CONJONCTION_AND = "AND";
+    const CONJONCTION_OR  = "OR";
+    const LIKE            = "LIKE";
+    const NOT_LIKE        = "NOT LIKE";
 
-    protected function _renderColumnName(Column $column)
+    const CURRENT_TIMESTAMP = 'CURRENT_TIMESTAMP';
+    const NULL              = "NULL";
+
+    protected $_value;
+
+    public static function SELECT()
     {
-        if ($column->isAll())
-            return '*';
-
-        return $this->_enclose(parent::_renderColumnName($column));
+        return new self(self::SELECT);
     }
 
-    protected function _renderTableName(Table $table)
+    public static function CURRENT_TIMESTAMP()
     {
-        return $this->_enclose(parent::_renderTableName($table));
+        return new self(self::CURRENT_TIMESTAMP());
     }
 
-    protected function _enclose($string, $char = '`')
+    public static function NULL()
     {
-        return $char . $string . $char;
+        return new self(self::NULL);
+    }
+
+    public function __construct($value)
+    {
+        $this->_value = $value;
+    }
+
+    public function getValue()
+    {
+        return $this->_value;
     }
 }

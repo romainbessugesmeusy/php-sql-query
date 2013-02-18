@@ -37,6 +37,7 @@ use RBM\SqlQuery\GenericRenderer;
 use RBM\SqlQuery\Filter;
 use RBM\SqlQuery\RendererException;
 use RBM\SqlQuery\Select;
+use RBM\SqlQuery\Token;
 
 class SqlServer extends GenericRenderer
 {
@@ -115,5 +116,22 @@ class SqlServer extends GenericRenderer
         return '';
     }
 
+    protected function _renderToken(Token $token)
+    {
+        switch ($token->getValue()) {
+            case Token::CURRENT_TIMESTAMP:
+                return 'GETDATE()';
+            default:
+                return parent::_renderToken($token);
+        }
+    }
 
+    /**
+     * @param $value
+     * @return string
+     */
+    protected function _renderString($value)
+    {
+        return "'" . str_replace("'", "''", $value) . "'";
+    }
 }
