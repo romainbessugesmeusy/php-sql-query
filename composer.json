@@ -1,7 +1,9 @@
 {
     "name": "romainbessugesmeusy/php-sql-query",
     "description": "A library to generate SQL Queries",
+    "keywords": ["sql", "query", "abstraction", "select", "update", "delete", "insert", "where"],
     "minimum-stability": "dev",
+    "license": "MIT",
     "authors": [
         {
             "name": "Romain Bessuges",
