@@ -5,6 +5,7 @@
     "keywords": ["sql", "query", "abstraction", "select", "update", "delete", "insert", "where"],
     "minimum-stability": "dev",
     "license": "MIT",
+    "version": "0.1.0-dev",
     "authors": [
         {
             "name": "Romain Bessuges",
