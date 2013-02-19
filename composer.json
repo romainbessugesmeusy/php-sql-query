@@ -1,6 +1,7 @@
 {
     "name": "romainbessugesmeusy/php-sql-query",
-    "description": "A library to generate SQL Queries",
+    "description": "php-sql-query is an abstraction layer for SQL query construction",
+    "type": "library",
     "keywords": ["sql", "query", "abstraction", "select", "update", "delete", "insert", "where"],
     "minimum-stability": "dev",
     "license": "MIT",
