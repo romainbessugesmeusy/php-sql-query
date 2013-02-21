@@ -32,8 +32,10 @@
  */
 
 
-namespace RBM\SqlQuery;
+namespace RBM\SqlQuery\Renderer;
 
+use RBM\SqlQuery\Exception;
+use RBM\SqlQuery\IQuery;
 use RBM\SqlQuery\IRenderer;
 use RBM\SqlQuery\Column;
 use RBM\SqlQuery\Delete;
@@ -45,30 +47,11 @@ use RBM\SqlQuery\OrderBy;
 use RBM\SqlQuery\RendererException;
 use RBM\SqlQuery\Select;
 use RBM\SqlQuery\Table;
+use RBM\SqlQuery\Token;
 use RBM\SqlQuery\Update;
 
-class GenericRenderer implements IRenderer
+class Generic implements IRenderer
 {
-    /**
-     * @var bool
-     */
-    protected $_prettyPrinting = true;
-
-    /**
-     * @return bool
-     */
-    public function getPrettyPrinting()
-    {
-        return $this->_prettyPrinting;
-    }
-
-    /**
-     * @param bool $prettyPrinting
-     */
-    public function setPrettyPrinting($prettyPrinting)
-    {
-        $this->_prettyPrinting = $prettyPrinting;
-    }
 
     /**
      * @param IQuery $query
@@ -86,6 +69,21 @@ class GenericRenderer implements IRenderer
     }
 
     /**
+     * @param IQuery $query
+     * @param bool $highlight
+     * @return String
+     * @throws Exception
+     */
+    public function format(IQuery $query, $highlight = false)
+    {
+        if (!class_exists('\SqlFormatter')) {
+            throw new Exception('Coult not find the SqlFormatter class by jdorn');
+        }
+
+        return \SqlFormatter::format($this->render($query), $highlight);
+    }
+
+    /**
      * @param Select $select
      * @return string
      */
@@ -97,21 +95,16 @@ class GenericRenderer implements IRenderer
             $col = $this->_renderColumnWithAlias($col);
         });
 
-        if ($this->getPrettyPrinting()) {
-            $prefix    = "\t  ";
-            $separator = "\n\t, ";
-        } else {
-            $prefix    = " ";
-            $separator = ", ";
-        }
+        $prefix    = " ";
+        $separator = ", ";
+
         return $prefix . implode($separator, $cols);
     }
 
     public function _renderSelectFrom(Select $select)
     {
 
-        $str = "FROM";
-        $str .= $this->getPrettyPrinting() ? "\n\t" : " ";
+        $str = "FROM ";
         $str .= $this->_renderTableWithAlias($select->getTable());
         return $str;
 
@@ -132,7 +125,7 @@ class GenericRenderer implements IRenderer
                 $join = $this->_renderJoin($join);
             });
 
-            $separator = ($this->getPrettyPrinting()) ? "\n" : " ";
+            $separator = " ";
             $str       = implode($separator, $joins);
         }
         return $str;
@@ -151,11 +144,7 @@ class GenericRenderer implements IRenderer
         if (count($filters)) {
             $str = "WHERE";
 
-            if ($this->getPrettyPrinting()) {
-                $separator = "\n" . $this->_renderConjonction($select->getFilterOperator()) . " ";
-            } else {
-                $separator = " " . $this->_renderConjonction($select->getFilterOperator()) . " ";
-            }
+            $separator = " " . $this->_renderConjonction($select->getFilterOperator()) . " ";
 
             $str .= implode($separator, $filters);
         }
@@ -179,13 +168,8 @@ class GenericRenderer implements IRenderer
 
             $str = "GROUP BY";
 
-            if ($this->getPrettyPrinting()) {
-                $str .= "\n\t  ";
-                $separator = "\n\t, ";
-            } else {
-                $str .= " ";
-                $separator = ", ";
-            }
+            $str .= " ";
+            $separator = ", ";
 
             $str .= implode($separator, $groupCols);
         }
@@ -226,7 +210,7 @@ class GenericRenderer implements IRenderer
             $parts[] = $limit;
 
 
-        $sql = implode("\n", $parts);
+        $sql = implode(" ", $parts);
 
         return $sql;
     }
@@ -384,13 +368,10 @@ class GenericRenderer implements IRenderer
     {
         $sql = ($select->getJoinType()) ? "{$select->getJoinType()} " : "";
         $sql .= "JOIN";
-        if ($this->getPrettyPrinting()) {
-            $sql .= "\n\t";
-            $on = "\n\tON ";
-        } else {
+
             $sql .= " ";
             $on = " ON ";
-        }
+
         $sql .= $this->_renderTableWithAlias($select->getTable());
         $sql .= $on;
         $sql .= $this->_renderFilter($select->getJoinCondition(), 1);
@@ -649,13 +630,10 @@ class GenericRenderer implements IRenderer
             });
 
             $str = "ORDER BY";
-            if ($this->getPrettyPrinting()) {
-                $str .= ($cnt > 1) ? "\n\t  " : "\n\t";
-                $separator = "\n\t, ";
-            } else {
-                $str .= " ";
-                $separator = ", ";
-            }
+
+            $str .= " ";
+            $separator = ", ";
+
             $str .= implode($separator, $orderBys);
         }
 
@@ -737,7 +715,7 @@ class GenericRenderer implements IRenderer
     {
         $mask = is_null($select->getLimitStart()) ? '0' : '1';
         $mask .= is_null($select->getLimitCount()) ? '0' : '1';
-        $separator = ($this->getPrettyPrinting()) ? "\n\t" : ' ';
+        $separator = ' ';
         switch ($mask) {
             case '10':
                 return "LIMIT{$separator}{$select->getLimitStart()}";

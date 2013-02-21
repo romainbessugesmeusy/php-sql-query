@@ -37,4 +37,6 @@ interface IRenderer
 {
 
     public function render(IQuery $query);
+
+    public function format(IQuery $query, $highlight = false);
 }

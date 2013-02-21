@@ -33,11 +33,10 @@
 
 namespace RBM\SqlQuery\Renderer;
 
-use RBM\SqlQuery\GenericRenderer;
 use RBM\SqlQuery\Column;
 use RBM\SqlQuery\Table;
 
-class MySql extends GenericRenderer
+class MySql extends Generic
 {
 
     protected function _renderColumnName(Column $column)

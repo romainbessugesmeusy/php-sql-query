@@ -33,13 +33,12 @@
 
 namespace RBM\SqlQuery\Renderer;
 
-use RBM\SqlQuery\GenericRenderer;
 use RBM\SqlQuery\Filter;
 use RBM\SqlQuery\RendererException;
 use RBM\SqlQuery\Select;
 use RBM\SqlQuery\Token;
 
-class SqlServer extends GenericRenderer
+class SqlServer extends Generic
 {
 
     public function _renderSelect(Select $select)

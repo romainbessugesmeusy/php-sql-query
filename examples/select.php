@@ -13,7 +13,7 @@ Select::setDefaultRenderer(new MySql());
 function printQuery($query)
 {
     echo PHP_EOL . PHP_EOL;
-    echo $query;
+    echo Select::getDefaultRenderer()->format($query);
     echo PHP_EOL . PHP_EOL . "===========================" . PHP_EOL;
 }
 $select = new Select('project', [
