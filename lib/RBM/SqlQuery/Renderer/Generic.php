@@ -269,6 +269,11 @@ class Generic implements IRenderer
         return $sql;
     }
 
+    protected function _renderAlias($alias)
+    {
+        return $alias;
+    }
+
     /**
      * @param $value
      * @return string
@@ -608,7 +613,7 @@ class Generic implements IRenderer
      */
     protected function _renderTableWithAlias(Table $table)
     {
-        $alias  = ($table->getAlias()) ? " AS {$table->getAlias()}" : '';
+        $alias  = ($table->getAlias()) ? " AS {$this->_renderAlias($table->getAlias())}" : '';
         $schema = ($table->getSchema()) ? "{$this->_renderTableSchema($table)}." : '';
         return $schema . $this->_renderTableName($table) . $alias;
     }
@@ -647,7 +652,7 @@ class Generic implements IRenderer
     protected function _renderOrderBy(OrderBy $orderBy)
     {
         if (($alias = $orderBy->getColumn()->getAlias()) && $orderBy->getUseAlias()) {
-            $col = $alias;
+            $col = $this->_renderAlias($alias);
         } else {
             $col = $this->_renderColumn($orderBy->getColumn());
         }
@@ -665,7 +670,7 @@ class Generic implements IRenderer
         }
 
         if ($alias = $column->getTable()->getAlias()) {
-            $table = $alias;
+            $table = $this->_renderAlias($alias);
         } else {
             $table = $this->_renderTable($column->getTable());
         }
@@ -693,7 +698,7 @@ class Generic implements IRenderer
     protected function _renderColumnWithAlias(Column $column)
     {
         if (($alias = $column->getAlias()) && !$column->isAll())
-            return $this->_renderColumn($column) . " AS " . $alias;
+            return $this->_renderColumn($column) . " AS " . $this->_renderAlias($alias);
 
         return $this->_renderColumn($column);
     }

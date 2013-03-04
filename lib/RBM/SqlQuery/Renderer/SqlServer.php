@@ -133,4 +133,15 @@ class SqlServer extends Generic
     {
         return "'" . str_replace("'", "''", $value) . "'";
     }
+
+    /**
+     * @param $alias
+     * @return string
+     */
+    protected function _renderAlias($alias)
+    {
+        return '"' . $alias . '"';
+    }
+
+
 }
