@@ -13,7 +13,7 @@
         }
     ],
     "autoload": {
-        "psr-0": { "RBM": "lib/" }
+        "psr-0": { "RBM\\SqlQuery": "lib/RBM/SqlQuery" }
     },
     "suggest": {
         "jdorn/sql-formatter": "Allows query formatting"
