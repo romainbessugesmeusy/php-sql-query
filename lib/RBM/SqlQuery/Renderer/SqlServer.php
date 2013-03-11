@@ -41,6 +41,18 @@ use RBM\SqlQuery\Token;
 class SqlServer extends Generic
 {
 
+    /**
+     * If you want to use double quotes, override these
+     * @var string
+     */
+    public static $aliasStartDelimiter = "[";
+
+    /**
+     * If you want to use double quotes, override these
+     * @var string
+     */
+    public static $aliasEndDelimiter = "]";
+
     public function _renderSelect(Select $select)
     {
         if ($select->getIsJoin()) {
@@ -140,7 +152,7 @@ class SqlServer extends Generic
      */
     protected function _renderAlias($alias)
     {
-        return '"' . $alias . '"';
+        return self::$aliasStartDelimiter . $alias . self::$aliasEndDelimiter;
     }
 
 
