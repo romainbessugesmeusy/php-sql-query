@@ -138,7 +138,6 @@ class Generic implements IRenderer
     public function _renderSelectWhere(Select $select)
     {
         $str = "";
-
         $filters = $this->_renderSelectFilters($select->getAllFilters());
 
         if (count($filters)) {
@@ -290,6 +289,9 @@ class Generic implements IRenderer
         if ($value instanceof IQuery)
             return $this->render($value);
 
+        if ($value instanceof Column)
+            return $this->_renderColumn($value);
+
         if ($value instanceof Token)
             return $this->_renderToken($value);
 
@@ -315,7 +317,7 @@ class Generic implements IRenderer
      */
     protected function _renderConjonction($operator)
     {
-        return $operator;
+        return ' ' . $operator . ' ';
     }
 
     /**
@@ -392,7 +394,11 @@ class Generic implements IRenderer
     {
         $name   = $func->getName();
         $format = "$name(%s)";
-        return sprintf($format, implode(', ', $func->getArgs()));
+        $args = $func->getArgs();
+        array_walk($args, function(&$arg){
+           $arg = $this->_renderValue($arg);
+        });
+        return sprintf($format, implode(', ', $args));
     }
 
     /**

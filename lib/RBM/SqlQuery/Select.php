@@ -73,7 +73,7 @@ class Select extends AbstractQuery
         if ($table)
             $this->setTable($table);
 
-        if ($cols)
+        if (count($cols))
             $this->setColumns($cols);
     }
 
@@ -102,16 +102,19 @@ class Select extends AbstractQuery
             return $this->_joins[$key];
         }
 
+
         /** @var $select Select */
-        $select = new $selectClass($table, $columns);
+        $select = new $selectClass();
+        $select->setTable($table);
+        $select->setColumns($columns);
 
         if (!is_null($selfColumn)) {
             if (is_null($refColumn)) {
                 $refColumn = $selfColumn;
             }
-
             $select->joinCondition()->equals($refColumn, Helper::prepareColumn($selfColumn, $this->getTable()));
         }
+
         return $this->addJoin($select);
     }
 
@@ -148,10 +151,8 @@ class Select extends AbstractQuery
             if (is_null($refColumn)) {
                 $refColumn = $selfColumn;
             }
-
             $select->joinCondition()->equals($refColumn, Helper::prepareColumn($selfColumn, $this->getTable()));
         }
-
         $this->_joins[$key] = $select;
 
         return $this->_joins[$key];

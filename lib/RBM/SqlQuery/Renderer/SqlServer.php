@@ -34,6 +34,7 @@
 namespace RBM\SqlQuery\Renderer;
 
 use RBM\SqlQuery\Filter;
+use RBM\SqlQuery\Func;
 use RBM\SqlQuery\RendererException;
 use RBM\SqlQuery\Select;
 use RBM\SqlQuery\Token;
@@ -155,5 +156,20 @@ class SqlServer extends Generic
         return self::$aliasStartDelimiter . $alias . self::$aliasEndDelimiter;
     }
 
+    /**
+     * Override in order to get the string concatenation right
+     * @param Func $func
+     * @return string
+     */
+    protected function _renderFunc(Func $func)
+    {
+        if($func->getName() != 'CONCAT') return parent::_renderFunc($func);
 
+        $args = $func->getArgs();
+        array_walk($args, function(&$arg){
+            $arg = $this->_renderValue($arg);
+        });
+
+        return implode(' + ', $args);
+    }
 }
