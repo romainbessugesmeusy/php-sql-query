@@ -600,7 +600,7 @@ class Generic implements IRenderer
      */
     protected function _renderTable(Table $table)
     {
-        $schema = ($table->getSchema()) ? "{$this->_renderTableSchema($table->getSchema())}." : '';
+        $schema = ($table->getSchema()) ? "{$this->_renderTableSchema($table)}." : '';
         return $schema . $this->_renderTableName($table);
     }
 
