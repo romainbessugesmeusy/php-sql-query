@@ -95,7 +95,7 @@ class Factory
     private static function _getClassForTable(Table $table, $which)
     {
         $id = $table->getSchema() . $table->getName();
-        return isset(self::$_tableClassMap[$id]) ? self::$_tableClassMap[$id] : self::$_tableClassMap['*'][$which];
+        return isset(self::$_tableClassMap[$id]) ? self::$_tableClassMap[$id][$which] : self::$_tableClassMap['*'][$which];
     }
 
     /**
