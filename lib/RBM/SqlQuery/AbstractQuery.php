@@ -36,12 +36,11 @@ namespace RBM\SqlQuery;
 abstract class AbstractQuery implements IQuery
 {
 
+
     /** @var IRenderer */
     protected static $_defaultRenderer;
     /** @var Table */
     protected $_table;
-    /** @var string */
-    protected $_filterClass = '\RBM\SqlQuery\Filter';
     /** @var string */
     protected $_filterOperator = "AND";
     /** @var Filter */
@@ -90,10 +89,11 @@ abstract class AbstractQuery implements IQuery
 
     /**
      * @param Filter $filter
+     * @throws Exception
      */
     public function setFilter(Filter $filter)
     {
-        if($filter->getTable()->getCompleteName() != $this->getTable()->getCompleteName()){
+        if ($filter->getTable()->getCompleteName() != $this->getTable()->getCompleteName()) {
             throw new Exception('filter table mismatch select table');
         }
         $this->_filter = $filter;
@@ -105,10 +105,7 @@ abstract class AbstractQuery implements IQuery
     public function filter()
     {
         if (!isset($this->_filter)) {
-            $cls = $this->_filterClass;
-            /** @var $_filter Filter */
-            $this->_filter = new $cls();
-            $this->_filter->setTable($this->_table);
+            $this->_filter = Factory::filter($this->_table);
         }
         return $this->_filter;
     }
@@ -122,39 +119,6 @@ abstract class AbstractQuery implements IQuery
             return $renderer->render($this);
         }
         return "ERROR: no default renderer specified";
-    }
-
-
-    /**
-     * @return string
-     */
-    public function getFilterClass()
-    {
-        return $this->_filterClass;
-    }
-
-    /**
-     * @param $filterClass
-     */
-    public function setFilterClass($filterClass)
-    {
-        if(isset($this->_filter)){
-            throw new Exception(
-                "Can't specify a Filter Class because the filter has already been created.".
-                    "Call ->setFilterClass() before ->filter()"
-            );
-        }
-
-        if(!class_exists($filterClass)){
-            throw new Exception("The specified Filter Class '$filterClass' could not be found");
-        }
-
-        $ref = new \ReflectionClass($filterClass);
-        if(!$ref->isSubclassOf('\RBM\SqlQuery\Filter')){
-            throw new Exception("The specified Filter Class '$filterClass' does not extend \\RBM\\SqlQuery\\Filter");
-        }
-
-        $this->_filterClass = $filterClass;
     }
 
     /**
@@ -172,4 +136,5 @@ abstract class AbstractQuery implements IQuery
     {
         $this->_filterOperator = $filterOperator;
     }
+
 }

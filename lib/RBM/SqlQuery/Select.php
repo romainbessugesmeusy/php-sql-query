@@ -35,7 +35,7 @@ namespace RBM\SqlQuery;
 
 class Select extends AbstractQuery
 {
-    const JOIN_LEFT = 'LEFT';
+    const JOIN_LEFT  = 'LEFT';
     const JOIN_RIGHT = 'RIGHT';
     const JOIN_INNER = 'INNER';
 
@@ -93,19 +93,22 @@ class Select extends AbstractQuery
      * @param string $selectClass
      * @return Select
      */
-    public function join($table, $selfColumn = null, $refColumn = null, $columns = array(), $selectClass = '\RBM\SqlQuery\Select')
+    public function join($table, $selfColumn = null, $refColumn = null, $columns = array(), $selectClass = null)
     {
         $table = Helper::prepareTable($table);
-        $key = $table->getCompleteName();
+        $key   = $table->getCompleteName();
 
         if (isset($this->_joins[$key])) {
             return $this->_joins[$key];
         }
 
-
-        /** @var $select Select */
-        $select = new $selectClass();
-        $select->setTable($table);
+        if (is_null($selectClass)) {
+            $select = Factory::select($table);
+        } else {
+            /** @var $select Select */
+            $select = new $selectClass();
+            $select->setTable($table);
+        }
         $select->setColumns($columns);
 
         if (!is_null($selfColumn)) {
@@ -124,9 +127,7 @@ class Select extends AbstractQuery
     public function joinCondition()
     {
         if (!isset($this->_joinCondition)) {
-            $cls = $this->_filterClass;
-            $this->_joinCondition = new $cls();
-            $this->_joinCondition->setTable($this->_table);
+            $this->_joinCondition = Factory::filter($this->_table);
         }
         return $this->_joinCondition;
 
@@ -214,7 +215,7 @@ class Select extends AbstractQuery
      */
     public function cols()
     {
-        switch (func_num_args()){
+        switch (func_num_args()) {
             case 0 :
                 $this->_columns = array();
                 return $this;
@@ -248,7 +249,7 @@ class Select extends AbstractQuery
         /** @var $join Select */
         foreach ($this->_joins as $join) {
             $joinCols = $join->getAllColumns();
-            $cols = array_merge($cols, $joinCols);
+            $cols     = array_merge($cols, $joinCols);
         }
         return $cols;
     }
@@ -258,7 +259,7 @@ class Select extends AbstractQuery
      */
     public function getColumns()
     {
-        if(is_null($this->_table)){
+        if (is_null($this->_table)) {
             throw new Exception("No table specified for the Select instance");
         }
         return Helper::prepareColumns($this->_columns, $this->getTable());
@@ -269,7 +270,7 @@ class Select extends AbstractQuery
      */
     public function setColumns($columns)
     {
-        if(!is_array($columns)){
+        if (!is_array($columns)) {
             $columns = array($columns);
         }
         $this->_columns = $columns;
@@ -334,7 +335,7 @@ class Select extends AbstractQuery
      */
     public function orderBy($column, $direction = OrderBy::ASC, $table = null, $useAlias = true)
     {
-        $column = Helper::prepareColumn($column, is_null($table) ? $this->getTable() : $table);
+        $column           = Helper::prepareColumn($column, is_null($table) ? $this->getTable() : $table);
         $this->_orderBy[] = new OrderBy($column, $direction, $useAlias);
         return $this;
     }
