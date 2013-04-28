@@ -128,7 +128,7 @@ class Filter
     }
 
     /**
-     * @return Filter[]
+     * @return static[]
      */
     public function getSubFilters()
     {
@@ -136,7 +136,7 @@ class Filter
     }
 
     /**
-     * @return Filter
+     * @return static
      */
     public function subFilter()
     {
@@ -151,7 +151,7 @@ class Filter
      * @param $col
      * @param $value
      * @param $operation
-     * @return Filter
+     * @return static
      */
     public function compare($col, $value, $operator)
     {
@@ -168,7 +168,7 @@ class Filter
      * equals alias
      * @param $col
      * @param $value
-     * @return Filter
+     * @return static
      */
     public function eq($col, $value)
     {
@@ -178,7 +178,7 @@ class Filter
     /**
      * @param $col
      * @param $value
-     * @return Filter
+     * @return static
      */
     public function equals($col, $value)
     {
@@ -188,7 +188,7 @@ class Filter
     /**
      * @param $col
      * @param $value
-     * @return Filter
+     * @return static
      */
     public function notEquals($col, $value)
     {
@@ -198,7 +198,7 @@ class Filter
     /**
      * @param $col
      * @param $value
-     * @return Filter
+     * @return static
      */
     public function greaterThan($col, $value)
     {
@@ -208,7 +208,7 @@ class Filter
     /**
      * @param $col
      * @param $value
-     * @return Filter
+     * @return static
      */
     public function greaterThanEquals($col, $value)
     {
@@ -218,7 +218,7 @@ class Filter
     /**
      * @param $col
      * @param $value
-     * @return Filter
+     * @return static
      */
     public function lowerThan($col, $value)
     {
@@ -228,7 +228,7 @@ class Filter
     /**
      * @param $col
      * @param $value
-     * @return Filter
+     * @return static
      */
     public function lowerThanEquals($col, $value)
     {
@@ -238,7 +238,7 @@ class Filter
     /**
      * @param $col
      * @param $value
-     * @return Filter
+     * @return static
      */
     public function like($col, $value)
     {
@@ -248,7 +248,7 @@ class Filter
     /**
      * @param $col
      * @param $value
-     * @return Filter
+     * @return static
      */
     public function notLike($col, $value)
     {
@@ -258,7 +258,7 @@ class Filter
     /**
      * @param $col
      * @param $values
-     * @return Filter
+     * @return static
      */
     public function in($col, $values)
     {
@@ -269,7 +269,7 @@ class Filter
     /**
      * @param $col
      * @param $values
-     * @return Filter
+     * @return static
      */
     public function notIn($col, $values)
     {
@@ -281,7 +281,7 @@ class Filter
      * @param $col
      * @param $a
      * @param $b
-     * @return Filter
+     * @return static
      */
     public function between($col, $a, $b)
     {
@@ -296,7 +296,7 @@ class Filter
 
     /**
      * @param $col
-     * @return Filter
+     * @return static
      */
     public function isNull($col)
     {
@@ -309,7 +309,7 @@ class Filter
 
     /**
      * @param $col
-     * @return Filter
+     * @return static
      */
     public function isNotNull($col)
     {
@@ -323,7 +323,7 @@ class Filter
     /**
      * @param $column
      * @param $value
-     * @return Filter
+     * @return static
      */
     public function addBitClause($column, $value)
     {

@@ -137,7 +137,7 @@ class Generic implements IRenderer
      */
     public function _renderSelectWhere(Select $select)
     {
-        $str = "";
+        $str     = "";
         $filters = $this->_renderSelectFilters($select->getAllFilters());
 
         if (count($filters)) {
@@ -180,6 +180,27 @@ class Generic implements IRenderer
      * @param Select $select
      * @return string
      */
+    public function _renderSelectHaving(Select $select)
+    {
+        $str = "";
+        if (count($havings = $select->getAllHavings())) {
+
+            array_walk($havings, function (&$having) {
+                $having = $this->_renderFilter($having);
+            });
+
+            $str       = "HAVING ";
+            $separator = " " . $select->getHavingOperator() . " ";
+            $str .= implode($separator, $havings);
+        }
+
+        return $str;
+    }
+
+    /**
+     * @param Select $select
+     * @return string
+     */
     protected function _renderSelect(Select $select)
     {
         if ($select->getIsJoin()) {
@@ -201,6 +222,9 @@ class Generic implements IRenderer
 
         if ($groupBy = $this->_renderSelectGroupBy($select))
             $parts[] = $groupBy;
+
+        if ($having = $this->_renderSelectHaving($select))
+            $parts[] = $having;
 
         if ($orderBy = $this->_renderSelectOrderBy($select))
             $parts[] = $orderBy;
@@ -376,8 +400,8 @@ class Generic implements IRenderer
         $sql = ($select->getJoinType()) ? "{$select->getJoinType()} " : "";
         $sql .= "JOIN";
 
-            $sql .= " ";
-            $on = " ON ";
+        $sql .= " ";
+        $on = " ON ";
 
         $sql .= $this->_renderTableWithAlias($select->getTable());
         $sql .= $on;
@@ -394,9 +418,9 @@ class Generic implements IRenderer
     {
         $name   = $func->getName();
         $format = "$name(%s)";
-        $args = $func->getArgs();
-        array_walk($args, function(&$arg){
-           $arg = $this->_renderValue($arg);
+        $args   = $func->getArgs();
+        array_walk($args, function (&$arg) {
+            $arg = $this->_renderValue($arg);
         });
         return sprintf($format, implode(', ', $args));
     }

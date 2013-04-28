@@ -63,6 +63,10 @@ class Select extends AbstractQuery
     protected $_isJoin = false;
     /** @var string */
     protected $_joinType;
+    /** @var Filter */
+    protected $_having;
+    /** @var string */
+    protected $_havingOperator = "AND";
 
     /**
      * @param string|Table|null $table
@@ -311,6 +315,24 @@ class Select extends AbstractQuery
     }
 
     /**
+     * @return Filter[]
+     */
+    public function getAllHavings()
+    {
+        $havings = array();
+
+        if (!is_null($this->_having)) {
+            $havings[] = $this->_having;
+        }
+
+        foreach ($this->_joins as $join) {
+            $havings = array_merge($havings, $join->getAllHavings());
+        }
+
+        return $havings;
+    }
+
+    /**
      * @return string
      * @todo refactor... this is pure SQL Server
      * @todo for MYSQL, look for the MYSQL_CALC_FOUND_ROWS
@@ -460,5 +482,33 @@ class Select extends AbstractQuery
     public function setJoinType($joinType)
     {
         $this->_joinType = $joinType;
+    }
+
+    /**
+     * @return Filter
+     */
+    public function having()
+    {
+        if (!isset($this->_having)) {
+            $this->_having = Factory::filter($this->_table);
+        }
+        return $this->_having;
+    }
+
+
+    /**
+     * @return string
+     */
+    public function getHavingOperator()
+    {
+        return $this->_havingOperator;
+    }
+
+    /**
+     * @param string $havingOperator
+     */
+    public function setHavingOperator($havingOperator)
+    {
+        $this->_havingOperator = $havingOperator;
     }
 }
