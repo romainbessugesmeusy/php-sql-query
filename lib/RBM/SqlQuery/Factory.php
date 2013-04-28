@@ -79,6 +79,14 @@ class Factory
         self::$_tableClassMap[$id] = $map;
     }
 
+    public static function setClassMap($map)
+    {
+        foreach($map as $table => $tableMap)
+        {
+            self::setClassMapForTable($table, $tableMap);
+        }
+    }
+
     /**
      * @param $table
      * @param $which
