@@ -69,7 +69,7 @@ class Token
 
     public static function CURRENT_TIMESTAMP()
     {
-        return new self(self::CURRENT_TIMESTAMP());
+        return new self(self::CURRENT_TIMESTAMP);
     }
 
     public static function NULL()
