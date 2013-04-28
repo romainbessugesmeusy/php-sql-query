@@ -81,8 +81,7 @@ class Factory
 
     public static function setClassMap($map)
     {
-        foreach($map as $table => $tableMap)
-        {
+        foreach ($map as $table => $tableMap) {
             self::setClassMapForTable($table, $tableMap);
         }
     }
@@ -95,7 +94,9 @@ class Factory
     private static function _getClassForTable(Table $table, $which)
     {
         $id = $table->getSchema() . $table->getName();
-        return isset(self::$_tableClassMap[$id]) ? self::$_tableClassMap[$id][$which] : self::$_tableClassMap['*'][$which];
+        return (isset(self::$_tableClassMap[$id]) && isset(self::$_tableClassMap[$id][$which])) ?
+            self::$_tableClassMap[$id][$which]
+            : self::$_tableClassMap['*'][$which];
     }
 
     /**
@@ -107,7 +108,7 @@ class Factory
     {
         $className = self::_getClassForTable(Helper::prepareTable($table), $which);
         /** @var IQuery|Filter $object */
-        $object    = new $className;
+        $object = new $className;
         $object->setTable($table);
         return $object;
     }
