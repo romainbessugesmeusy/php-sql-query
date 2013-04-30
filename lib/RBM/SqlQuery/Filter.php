@@ -103,6 +103,12 @@ class Filter
             empty($this->_subFilters);
     }
 
+    public function __construct()
+    {
+        if ($table = Factory::getTableForClass(get_class($this))){
+            $this->setTable($table);
+        }
+    }
     /**
      * @param $table string|Table
      */
@@ -116,7 +122,7 @@ class Filter
      */
     public function getTable()
     {
-        return Helper::prepareTable($this->_table);
+        return !isset($this->_table) ? null : Helper::prepareTable($this->_table);
     }
 
     /**

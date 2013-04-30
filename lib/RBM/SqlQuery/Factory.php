@@ -10,10 +10,12 @@ class Factory
     const TYPE_UPDATE = 'update';
     const TYPE_DELETE = 'delete';
     const TYPE_FILTER = 'filter';
+    
+    const ALL_TABLES = "*";
 
     /** @var array */
     protected static $_tableClassMap = array(
-        "*" => array(
+        self::ALL_TABLES => array(
             "filter" => '\RBM\SqlQuery\Filter',
             "select" => '\RBM\SqlQuery\Select',
             "insert" => '\RBM\SqlQuery\Insert',
@@ -26,9 +28,9 @@ class Factory
      * @param $table
      * @return Select
      */
-    public static function select($table)
+    public static function select($table, $cols = null)
     {
-        return self::_createObject($table, self::TYPE_SELECT);
+        return self::_createObject($table, self::TYPE_SELECT, $cols);
     }
 
     /**
@@ -87,6 +89,20 @@ class Factory
     }
 
     /**
+     * @param $className
+     * @return null|string
+     */
+    public static function getTableForClass($className)
+    {
+        foreach (self::$_tableClassMap as $table => $classMap) {
+            if($table != self::ALL_TABLES && in_array($className, $classMap)){
+                return $table;
+            }
+        }
+        return null;
+    }
+
+    /**
      * @param $table
      * @param $which
      * @return string
@@ -96,20 +112,25 @@ class Factory
         $id = $table->getSchema() . $table->getName();
         return (isset(self::$_tableClassMap[$id]) && isset(self::$_tableClassMap[$id][$which])) ?
             self::$_tableClassMap[$id][$which]
-            : self::$_tableClassMap['*'][$which];
+            : self::$_tableClassMap[self::ALL_TABLES][$which];
     }
 
     /**
      * @param $table
      * @param $which
-     * @return Filter|IQuery
+     * @param array|null $cols
+     * @return Filter|IQuery|Select
      */
-    private static function _createObject($table, $which)
+    private static function _createObject($table, $which, $cols = null)
     {
         $className = self::_getClassForTable(Helper::prepareTable($table), $which);
-        /** @var IQuery|Filter $object */
+        /** @var IQuery|Filter|Select $object */
         $object = new $className;
         $object->setTable($table);
+
+        if ($object instanceof Select && !is_null($cols))
+            $object->setColumns($cols);
+
         return $object;
     }
 }

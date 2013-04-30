@@ -46,6 +46,7 @@ abstract class AbstractQuery implements IQuery
     /** @var Filter */
     protected $_filter;
 
+
     /**
      * @param IRenderer $defaultRenderer
      */
@@ -60,6 +61,14 @@ abstract class AbstractQuery implements IQuery
     public static function getDefaultRenderer()
     {
         return self::$_defaultRenderer;
+    }
+
+
+    public function __construct()
+    {
+        if ($table = Factory::getTableForClass(get_class($this))){
+            $this->setTable($table);
+        }
     }
 
     /**

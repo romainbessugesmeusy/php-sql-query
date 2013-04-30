@@ -74,6 +74,9 @@ class Select extends AbstractQuery
      */
     public function __construct($table = null, $cols = array(Column::ALL))
     {
+
+        parent::__construct();
+
         if ($table)
             $this->setTable($table);
 
