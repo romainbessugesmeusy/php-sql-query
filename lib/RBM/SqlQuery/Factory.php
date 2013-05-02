@@ -10,7 +10,7 @@ class Factory
     const TYPE_UPDATE = 'update';
     const TYPE_DELETE = 'delete';
     const TYPE_FILTER = 'filter';
-    
+
     const ALL_TABLES = "*";
 
     /** @var array */
@@ -76,9 +76,14 @@ class Factory
      */
     public static function setClassMapForTable($table, $map)
     {
-        $table                     = Helper::prepareTable($table);
-        $id                        = $table->getSchema() . $table->getName();
-        self::$_tableClassMap[$id] = $map;
+        $table = Helper::prepareTable($table);
+        $id    = $table->getSchema() . $table->getName();
+
+        foreach ($map as $type => $class) {
+            $class = ($class[0] != '\\') ? '\\' . $class : $class;
+
+            self::$_tableClassMap[$id][$type] = $class;
+        }
     }
 
     public static function setClassMap($map)
@@ -94,8 +99,13 @@ class Factory
      */
     public static function getTableForClass($className)
     {
+        if ($className[0] != '\\') {
+            $className = '\\' . $className;
+        }
+
         foreach (self::$_tableClassMap as $table => $classMap) {
-            if($table != self::ALL_TABLES && in_array($className, $classMap)){
+
+            if ($table != self::ALL_TABLES && in_array($className, $classMap)) {
                 return $table;
             }
         }
