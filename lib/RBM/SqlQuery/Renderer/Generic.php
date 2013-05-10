@@ -246,6 +246,7 @@ class Generic implements IRenderer
         $assigns = array();
         foreach ($update->getValues() as $col => $value) {
             $col       = $this->_renderColumn(Helper::prepareColumn($col, $update->getTable()));
+            $value     = $this->_renderValue($value);
             $assigns[] = "$col = $value";
         }
         $sql .= implode(", ", $assigns);
