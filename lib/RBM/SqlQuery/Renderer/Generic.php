@@ -49,6 +49,7 @@ use RBM\SqlQuery\Select;
 use RBM\SqlQuery\Table;
 use RBM\SqlQuery\Token;
 use RBM\SqlQuery\Update;
+use RBM\SqlQuery\RawQuery;
 
 class Generic implements IRenderer
 {
@@ -311,6 +312,9 @@ class Generic implements IRenderer
         if (is_bool($value))
             return $this->_renderBoolean($value);
 
+        if ($value instanceof RawQuery)
+            return $value->getQuery();
+
         if ($value instanceof IQuery)
             return $this->render($value);
 
@@ -330,6 +334,9 @@ class Generic implements IRenderer
      */
     protected function _renderValues($values)
     {
+        if ($values instanceof RawQuery)
+            return array($values->getQuery());
+
         array_walk($values, function (&$value) {
             $value = $this->_renderValue($value);
         });
