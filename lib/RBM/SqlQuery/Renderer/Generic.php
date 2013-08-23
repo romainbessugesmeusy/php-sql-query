@@ -442,7 +442,9 @@ class Generic implements IRenderer
         array_walk($filters, function (& $filter) {
             $filter = $this->_renderFilter($filter);
         });
-        return $filters;
+
+        // Return all but empty:
+        return array_filter($filters);
     }
 
     /**
