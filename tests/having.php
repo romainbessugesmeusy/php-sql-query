@@ -12,6 +12,7 @@ require 'bootstrap.php';
 $select = new \RBM\SqlQuery\Select("Project");
 $select->cols("project_id", "name");
 $select->setGroup(["project_id", "name"]);
+
 $messages = $select->join("ProjectMessages", "project_id");
 $messages->having()->greaterThanEquals(new \RBM\SqlQuery\Func("COUNT", [new \RBM\SqlQuery\Column("message_id", $messages->getTable())]), 0);
 

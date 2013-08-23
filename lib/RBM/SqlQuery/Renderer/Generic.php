@@ -552,7 +552,13 @@ class Generic implements IRenderer
     {
         $comparisons = $filter->getComparisons();
         array_walk($comparisons, function (&$comparison) {
-            $str = ($comparison["subject"] instanceof Column) ? $this->_renderColumn($comparison["subject"]) : $this->_renderValue($comparison["subject"]);
+            if ($comparison["subject"] instanceof Column){
+                $str = $this->_renderColumn($comparison["subject"]);
+            } else if ($comparison["subject"] instanceof Select) {
+                $str = '(' . $this->_renderSelect($comparison["subject"]) . ')';
+            } else {
+                $str = $this->_renderValue($comparison["subject"]);
+            }
             $str .= $this->_renderConjonction($comparison["conjonction"]);
             if ($comparison["target"] instanceof Column) {
                 $str .= $this->_renderColumn($comparison["target"]);
@@ -691,11 +697,15 @@ class Generic implements IRenderer
     }
 
     /**
-     * @param Column $column
+     * @param Column|Select|Func $column
      * @return string
      */
-    protected function _renderColumn(Column $column)
+    protected function _renderColumn($column)
     {
+        if ($column instanceof Select) {
+            return '(' . $this->_renderSelect($column) . ')';
+        }
+
         if ($column instanceof Func) {
             return $this->_renderFunc($column);
         }

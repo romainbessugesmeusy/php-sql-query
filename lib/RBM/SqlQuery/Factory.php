@@ -30,16 +30,18 @@ class Factory
      */
     public static function select($table, $cols = null)
     {
-        return self::_createObject($table, self::TYPE_SELECT, $cols);
+        return self::_createQuery($table, self::TYPE_SELECT, $cols);
     }
 
     /**
-     * @param $table
+     * @param IQuery $query
      * @return Filter
      */
-    public static function filter($table)
+    public static function filter(IQuery $query)
     {
-        return self::_createObject($table, self::TYPE_FILTER);
+        $className = self::_getClassForTable(Helper::prepareTable($query->getTable()), self::TYPE_FILTER);
+        /** @var Filter $filter */
+        return new $className($query);
     }
 
     /**
@@ -48,7 +50,7 @@ class Factory
      */
     public static function insert($table)
     {
-        return self::_createObject($table, self::TYPE_INSERT);
+        return self::_createQuery($table, self::TYPE_INSERT);
     }
 
     /**
@@ -57,7 +59,7 @@ class Factory
      */
     public static function update($table)
     {
-        return self::_createObject($table, self::TYPE_UPDATE);
+        return self::_createQuery($table, self::TYPE_UPDATE);
     }
 
     /**
@@ -66,7 +68,7 @@ class Factory
      */
     public static function delete($table)
     {
-        return self::_createObject($table, self::TYPE_DELETE);
+        return self::_createQuery($table, self::TYPE_DELETE);
     }
 
 
@@ -129,9 +131,9 @@ class Factory
      * @param $table
      * @param $which
      * @param array|null $cols
-     * @return Filter|IQuery|Select
+     * @return IQuery
      */
-    private static function _createObject($table, $which, $cols = null)
+    private static function _createQuery($table, $which, $cols = null)
     {
         $className = self::_getClassForTable(Helper::prepareTable($table), $which);
         /** @var IQuery|Filter|Select $object */

@@ -38,6 +38,7 @@ class Select extends AbstractQuery
     const JOIN_LEFT  = 'LEFT';
     const JOIN_RIGHT = 'RIGHT';
     const JOIN_INNER = 'INNER';
+    const JOIN_CROSS = 'CROSS';
 
     /** @var Table */
     protected $_table;
@@ -74,7 +75,6 @@ class Select extends AbstractQuery
      */
     public function __construct($table = null, $cols = array(Column::ALL))
     {
-
         parent::__construct();
 
         if ($table)
@@ -93,14 +93,15 @@ class Select extends AbstractQuery
     }
 
     /**
-     * @param $table
-     * @param null $selfColumn
-     * @param null $refColumn
-     * @param array $columns
+     * @param string|Table $table
+     * @param string|Column $selfColumn
+     * @param string|Column $refColumn
+     * @param array|Column[] $columns
      * @param string $selectClass
+     * @param string $joinType
      * @return Select
      */
-    public function join($table, $selfColumn = null, $refColumn = null, $columns = array(), $selectClass = null)
+    public function join($table, $selfColumn = null, $refColumn = null, $columns = array(), $selectClass = null, $joinType = null)
     {
         $table = Helper::prepareTable($table);
         $key   = $table->getCompleteName();
@@ -129,15 +130,76 @@ class Select extends AbstractQuery
     }
 
     /**
+     * @param $table
+     * @param null $selfColumn
+     * @param null $refColumn
+     * @param array $columns
+     * @param null $selectClass
+     * @return Select
+     */
+    public function leftJoin($table, $selfColumn = null, $refColumn = null, $columns = array(), $selectClass = null)
+    {
+        return $this->join($table, $selfColumn, $refColumn, $columns, $selectClass, self::JOIN_LEFT);
+    }
+
+    /**
+     * @param $table
+     * @param null $selfColumn
+     * @param null $refColumn
+     * @param array $columns
+     * @param null $selectClass
+     * @return Select
+     */
+    public function rightJoin($table, $selfColumn = null, $refColumn = null, $columns = array(), $selectClass = null)
+    {
+        return $this->join($table, $selfColumn, $refColumn, $columns, $selectClass, self::JOIN_RIGHT);
+    }
+
+    /**
+     * @param $table
+     * @param null $selfColumn
+     * @param null $refColumn
+     * @param array $columns
+     * @param null $selectClass
+     * @return Select
+     */
+    public function crossJoin($table, $selfColumn = null, $refColumn = null, $columns = array(), $selectClass = null)
+    {
+        return $this->join($table, $selfColumn, $refColumn, $columns, $selectClass, self::JOIN_CROSS);
+    }
+
+    /**
+     * @param $table
+     * @param null $selfColumn
+     * @param null $refColumn
+     * @param array $columns
+     * @param null $selectClass
+     * @return Select
+     */
+    public function innerJoin($table, $selfColumn = null, $refColumn = null, $columns = array(), $selectClass = null)
+    {
+        return $this->join($table, $selfColumn, $refColumn, $columns, $selectClass, self::JOIN_INNER);
+    }
+
+    /**
+     * The filter used for the ON clause of a JOIN
      * @return Filter
      */
     public function joinCondition()
     {
         if (!isset($this->_joinCondition)) {
-            $this->_joinCondition = Factory::filter($this->_table);
+            $this->_joinCondition = Factory::filter($this);
         }
         return $this->_joinCondition;
+    }
 
+    /**
+     * Alias to joinCondition
+     * @return Filter
+     */
+    public function on()
+    {
+        return $this->joinCondition();
     }
 
     /**
@@ -493,7 +555,7 @@ class Select extends AbstractQuery
     public function having()
     {
         if (!isset($this->_having)) {
-            $this->_having = Factory::filter($this->_table);
+            $this->_having = Factory::filter($this);
         }
         return $this->_having;
     }

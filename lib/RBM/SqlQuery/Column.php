@@ -92,7 +92,9 @@ class Column
     }
 
     /**
-     * @param string $alias
+     * @param $alias
+     * @return null
+     * @throws Exception
      */
     public function setAlias($alias)
     {

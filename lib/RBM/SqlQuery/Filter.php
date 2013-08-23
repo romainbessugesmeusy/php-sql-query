@@ -78,6 +78,9 @@ class Filter
     /** @var string */
     protected $_conjonction = self::CONJONCTION_AND;
 
+    /** @var  IQuery */
+    protected $_query;
+
     /**
      * Deep copy for nested references
      * @return mixed
@@ -103,12 +106,11 @@ class Filter
             empty($this->_subFilters);
     }
 
-    public function __construct()
+    public function __construct(IQuery $query, Filter $parentFilter = null)
     {
-        if ($table = Factory::getTableForClass(get_class($this))){
-            $this->setTable($table);
-        }
+        $this->_query = $query;
     }
+
     /**
      * @param $table string|Table
      */
@@ -122,7 +124,7 @@ class Filter
      */
     public function getTable()
     {
-        return !isset($this->_table) ? null : Helper::prepareTable($this->_table);
+        return $this->_query->getTable();
     }
 
     /**
@@ -142,12 +144,12 @@ class Filter
     }
 
     /**
-     * @return static
+     * @return $this
      */
     public function subFilter()
     {
         /** @var $filter Filter */
-        $filter = new static();
+        $filter = new static($this->_query, $this);
         $filter->setTable($this->getTable());
         $this->_subFilters[] = $filter;
         return $filter;
@@ -156,12 +158,13 @@ class Filter
     /**
      * @param $col
      * @param $value
-     * @param $operation
-     * @return static
+     * @param $operator
+     * @return $this
      */
     public function compare($col, $value, $operator)
     {
-        $col                  = $this->_prepareCol($col);
+        $col = $this->_prepareCol($col);
+
         $this->_comparisons[] = array(
             "subject"     => $col,
             "conjonction" => $operator,
@@ -347,6 +350,9 @@ class Filter
      */
     protected function _prepareCol($col)
     {
+        if ($col instanceof Select) {
+            return $col;
+        }
         return Helper::prepareColumn($col, $this->getTable());
     }
 
@@ -367,17 +373,17 @@ class Filter
         return $this->_notIns;
     }
 
-
     /**
      * @param $operator
      * @return $this
+     * @throws Exception
      */
     public function conjonction($operator)
     {
         if (!in_array($operator, array(self::CONJONCTION_AND, self::CONJONCTION_OR))) {
             throw new Exception(
                 "Invalid conjonction specified, must be one of \\RBM\\SqlQuery\\Filter::CONJONCTION_AND"
-                    . "or \\RBM\\SqlQuery\\Filter::CONJONCTION_OR. '" . $operator . "' given."
+                . "or \\RBM\\SqlQuery\\Filter::CONJONCTION_OR. '" . $operator . "' given."
             );
         }
         $this->_conjonction = $operator;
@@ -423,6 +429,4 @@ class Filter
     {
         return $this->_isNull;
     }
-
-
 }

@@ -35,8 +35,6 @@ namespace RBM\SqlQuery;
 
 abstract class AbstractQuery implements IQuery
 {
-
-
     /** @var IRenderer */
     protected static $_defaultRenderer;
     /** @var Table */
@@ -45,7 +43,6 @@ abstract class AbstractQuery implements IQuery
     protected $_filterOperator = "AND";
     /** @var Filter */
     protected $_filter;
-
 
     /**
      * @param IRenderer $defaultRenderer
@@ -63,10 +60,13 @@ abstract class AbstractQuery implements IQuery
         return self::$_defaultRenderer;
     }
 
-
+    /**
+     * The constructor will look up in the factory classmap
+     * to deduce its table, if not defined in class
+     */
     public function __construct()
     {
-        if ($table = Factory::getTableForClass(get_class($this))){
+        if (!isset($this->_table) && $table = Factory::getTableForClass(get_class($this))){
             $this->setTable($table);
         }
     }
@@ -86,7 +86,6 @@ abstract class AbstractQuery implements IQuery
     {
         $this->_table = $table;
     }
-
 
     /**
      * @return Filter
@@ -114,9 +113,17 @@ abstract class AbstractQuery implements IQuery
     public function filter()
     {
         if (!isset($this->_filter)) {
-            $this->_filter = Factory::filter($this->_table);
+            $this->_filter = Factory::filter($this);
         }
         return $this->_filter;
+    }
+
+    /**
+     * @return Filter
+     */
+    public function where()
+    {
+        return $this->filter();
     }
 
     /**
