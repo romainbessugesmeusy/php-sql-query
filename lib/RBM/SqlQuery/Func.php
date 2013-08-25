@@ -38,7 +38,7 @@ class Func extends Column
 
     protected $_args;
 
-    public function __construct($name, $args, $alias = null)
+    public function __construct($name, array $args = array(), $alias = null)
     {
         $this->_name = $name;
         $this->_args = $args;
