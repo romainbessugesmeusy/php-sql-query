@@ -81,10 +81,12 @@ abstract class AbstractQuery implements IQuery
 
     /**
      * @param $table string|Table
+     * @return AbstractQuery
      */
     public function setTable($table)
     {
         $this->_table = $table;
+        return $this;
     }
 
 

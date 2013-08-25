@@ -274,6 +274,7 @@ class Select extends AbstractQuery
 
     /**
      * @param $columns array
+     * @return Select
      */
     public function setColumns($columns)
     {
@@ -281,6 +282,7 @@ class Select extends AbstractQuery
             $columns = array($columns);
         }
         $this->_columns = $columns;
+        return $this;
     }
 
     /**
