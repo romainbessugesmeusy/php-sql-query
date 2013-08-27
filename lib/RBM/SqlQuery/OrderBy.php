@@ -38,20 +38,28 @@ class OrderBy
     const ASC = 'ASC';
     const DESC = 'DESC';
 
+    const NULLS_LAST  = 'LAST';
+    const NULLS_FIRST = 'FIRST';
+
     /** @var Column */
     protected $_column;
 
     /** @var string */
     protected $_direction;
 
+
+    /** @var string */
+    protected $_nulls;
+
     /** @var boolean */
     protected $_useAlias;
 
-    public function __construct(Column $column, $direction, $useAlias)
+    public function __construct(Column $column, $direction, $useAlias, $nulls = null)
     {
         $this->setColumn($column);
         $this->setDirection($direction);
         $this->setUseAlias($useAlias);
+        $this->setNulls($nulls);
     }
 
     /**
@@ -103,6 +111,26 @@ class OrderBy
     public function getUseAlias()
     {
         return $this->_useAlias;
+    }
+
+
+    /**
+     * @param null|string $mnulls
+     */
+    public function setNulls($nulls = null)
+    {
+        if(!is_null($nulls) && !in_array($nulls, array(self::NULLS_FIRST, self::NULLS_LAST))){
+            throw new \InvalidArgumentException("Specified nulls '$nulls' is not allowed");
+        }
+        $this->_nulls = $nulls;
+    }
+
+    /**
+     * @return null|string
+     */
+    public function getNulls()
+    {
+        return $this->_nulls;
     }
 
 

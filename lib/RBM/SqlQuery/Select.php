@@ -360,10 +360,14 @@ class Select extends AbstractQuery
      * @param bool $useAlias
      * @return $this
      */
-    public function orderBy($column, $direction = OrderBy::ASC, $table = null, $useAlias = true)
+    public function orderBy($column, $direction = OrderBy::ASC, $table = null, $useAlias = true, $nulls = null)
     {
-        $column           = Helper::prepareColumn($column, is_null($table) ? $this->getTable() : $table);
-        $this->_orderBy[] = new OrderBy($column, $direction, $useAlias);
+        $column  = Helper::prepareColumn($column, is_null($table) ? $this->getTable() : $table);
+        $orderBy = new OrderBy($column, $direction, $useAlias);
+        $orderBy->setNulls($nulls);
+
+        $this->_orderBy[] = $orderBy;
+
         return $this;
     }
 

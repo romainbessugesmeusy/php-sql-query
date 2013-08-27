@@ -34,6 +34,7 @@
 namespace RBM\SqlQuery\Renderer;
 
 use RBM\SqlQuery\Select;
+use RBM\SqlQuery\OrderBy;
 
 class Postgres extends Generic
 {
@@ -56,5 +57,28 @@ class Postgres extends Generic
         }
 
         return '';
+    }
+
+    /**
+     * @param OrderBy $orderBy
+     * @return string
+     */
+    protected function _renderOrderBy(OrderBy $orderBy)
+    {
+        $sqlOrderPart = '';
+
+        if (($alias = $orderBy->getColumn()->getAlias()) && $orderBy->getUseAlias()) {
+            $sqlOrderPart .= $this->_renderAlias($alias);
+        } else {
+            $sqlOrderPart .= $this->_renderColumn($orderBy->getColumn());
+        }
+
+        $sqlOrderPart .= ' ' .  $orderBy->getDirection();
+
+        if ($orderBy->getNulls()) {
+            $sqlOrderPart .= ' NULLS ' .  $orderBy->getNulls();
+        }
+
+        return $sqlOrderPart;
     }
 }

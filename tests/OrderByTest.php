@@ -32,6 +32,7 @@
  */
 
 use RBM\SqlQuery\OrderBy;
+use RBM\SqlQuery\Select;
 use RBM\SqlQuery\Column;
 
 class OrderByTest extends PHPUnit_Framework_TestCase {
@@ -54,5 +55,22 @@ class OrderByTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(OrderBy::DESC, $order->getDirection());
         $this->setExpectedException("InvalidArgumentException");
         $order->setDirection("this is not a valid direction");
+    }
+
+    public function testSettingNullsThroughSelect()
+    {
+        $sel = new Select();
+        $sel->orderBy('col', OrderBy::ASC, 'tbl', false, OrderBy::NULLS_FIRST);
+        $this->assertEquals(OrderBy::NULLS_FIRST, $sel->getOrderBy()[0]->getNulls());
+    }
+
+    public function testNulls()
+    {
+        $col = new Column("date_created", "project");
+        $order = new OrderBy($col, OrderBy::ASC, false);
+        $this->assertNull($order->getNulls());
+
+        $order->setNulls(OrderBy::NULLS_LAST);
+        $this->assertEquals(OrderBy::NULLS_LAST, $order->getNulls());
     }
 }
