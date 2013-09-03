@@ -126,6 +126,8 @@ class Select extends AbstractQuery
             $select->joinCondition()->equals($refColumn, Helper::prepareColumn($selfColumn, $this->getTable()));
         }
 
+        $select->setJoinType($joinType);
+
         return $this->addJoin($select);
     }
 
