@@ -164,7 +164,7 @@ Creating a filter for our project table is straightforward:
 	{
 		public function deleted($deleted)
 		{
-			return ($deleted) $this->isNull('date_deleted') : $this->isNotNull('date_deleted');
+			return ($deleted) ? $this->isNull('date_deleted') : $this->isNotNull('date_deleted');
 		}
 	}
 
