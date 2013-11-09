@@ -74,8 +74,10 @@ class Helper
             $v   = array_values($arg);
             $k   = array_keys($arg);
             $arg = new Column($v[0], $table, $k[0]);
+        } else if (is_a($arg, '\RBM\SqlQuery\Token')){
+            // do nothing
         } else if (!is_a($arg, '\RBM\SqlQuery\Column')) {
-            throw new Exception('Invalid column provided, string or \RBM\SqlQuery\Column expected');
+            throw new Exception('Invalid column provided, string, \RBM\SqlQuery\Column or \RBM\SqlQuery\Token expected');
         }
         return $arg;
     }
