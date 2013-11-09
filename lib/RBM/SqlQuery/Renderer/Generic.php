@@ -710,6 +710,10 @@ class Generic implements IRenderer
             return $this->_renderFunc($column);
         }
 
+        if ($column instanceof Token) {
+            return $this->_renderToken($column);
+        }
+
         if ($alias = $column->getTable()->getAlias()) {
             $table = $this->_renderAlias($alias);
         } else {
