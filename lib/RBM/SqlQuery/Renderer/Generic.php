@@ -92,10 +92,14 @@ class Generic implements IRenderer
         $cols = ($select->getForcedColumns()) ? $select->getForcedColumns() : $select->getAllColumns();
 
         array_walk($cols, function (&$col) {
-            $col = $this->_renderColumnWithAlias($col);
+            if ($col instanceof Column) {
+                $col = $this->_renderColumnWithAlias($col);
+            } else if ($col instanceof Token) {
+                $col = $this->_renderToken($col);
+            }
         });
 
-        $prefix    = " ";
+        $prefix = " ";
         $separator = ", ";
 
         return $prefix . implode($separator, $cols);
@@ -126,7 +130,7 @@ class Generic implements IRenderer
             });
 
             $separator = " ";
-            $str       = implode($separator, $joins);
+            $str = implode($separator, $joins);
         }
         return $str;
     }
@@ -137,7 +141,7 @@ class Generic implements IRenderer
      */
     public function _renderSelectWhere(Select $select)
     {
-        $str     = "";
+        $str = "";
         $filters = $this->_renderSelectFilters($select->getAllFilters());
 
         if (count($filters)) {
@@ -189,7 +193,7 @@ class Generic implements IRenderer
                 $having = $this->_renderFilter($having);
             });
 
-            $str       = "HAVING ";
+            $str = "HAVING ";
             $separator = " " . $select->getHavingOperator() . " ";
             $str .= implode($separator, $havings);
         }
@@ -241,12 +245,12 @@ class Generic implements IRenderer
     protected function _renderUpdate(Update $update)
     {
         $table = $this->_renderTable($update->getTable());
-        $sql   = "UPDATE {$table} SET ";
+        $sql = "UPDATE {$table} SET ";
 
         $assigns = array();
         foreach ($update->getValues() as $col => $value) {
-            $col       = $this->_renderColumn(Helper::prepareColumn($col, $update->getTable()));
-            $value     = $this->_renderValue($value);
+            $col = $this->_renderColumn(Helper::prepareColumn($col, $update->getTable()));
+            $value = $this->_renderValue($value);
             $assigns[] = "$col = $value";
         }
         $sql .= implode(", ", $assigns);
@@ -273,8 +277,8 @@ class Generic implements IRenderer
             $val = $this->_renderValue($val);
         });
 
-        $cols  = implode(", ", $cols);
-        $vals  = implode(", ", $vals);
+        $cols = implode(", ", $cols);
+        $vals = implode(", ", $vals);
         $table = $this->_renderTable($insert->getTable());
         return "INSERT INTO {$table} ($cols) VALUES ($vals)";
     }
@@ -286,7 +290,7 @@ class Generic implements IRenderer
     protected function _renderDelete(Delete $delete)
     {
         $table = $this->_renderTable($delete->getTable());
-        $sql   = "DELETE FROM {$table}";
+        $sql = "DELETE FROM {$table}";
         if ($delete->getFilter()) {
             $sql .= " WHERE {$this->_renderFilter($delete->getFilter())}";
         }
@@ -417,9 +421,9 @@ class Generic implements IRenderer
      */
     protected function _renderFunc(Func $func)
     {
-        $name   = $func->getName();
+        $name = $func->getName();
         $format = "$name(%s)";
-        $args   = $func->getArgs();
+        $args = $func->getArgs();
         array_walk($args, function (&$arg) {
             $arg = $this->_renderValue($arg);
         });
@@ -448,7 +452,7 @@ class Generic implements IRenderer
             return '';
         }
 
-        $indent  = str_repeat("\t", $depth);
+        $indent = str_repeat("\t", $depth);
         $clauses = $this->_renderFilterClauses($filter, $depth);
         return implode("\n$indent " . $this->_renderConjonction($filter->getConjonction()) . " ", $clauses);
 
@@ -465,13 +469,13 @@ class Generic implements IRenderer
         $depth++;
         $indent = str_repeat("\t", $depth);
 
-        $ins         = $this->_renderFilterIns($filter);
-        $notIns      = $this->_renderFilterNotIns($filter);
-        $betweens    = $this->_renderFilterBetweens($filter);
+        $ins = $this->_renderFilterIns($filter);
+        $notIns = $this->_renderFilterNotIns($filter);
+        $betweens = $this->_renderFilterBetweens($filter);
         $comparisons = $this->_renderFilterComparisons($filter);
-        $isNulls     = $this->_renderFilterIsNulls($filter);
-        $isNotNulls  = $this->_renderFilterIsNotNulls($filter);
-        $booleans    = $this->_renderFilterBooleans($filter);
+        $isNulls = $this->_renderFilterIsNulls($filter);
+        $isNotNulls = $this->_renderFilterIsNotNulls($filter);
+        $booleans = $this->_renderFilterBooleans($filter);
 
         $clauses = array_merge($ins, $notIns, $betweens, $comparisons, $isNulls, $isNotNulls, $booleans);
 
@@ -495,11 +499,11 @@ class Generic implements IRenderer
         $ins = array();
 
         foreach ($filter->getIns() as $col => $values) {
-            $col    = Helper::prepareColumn($col, $filter->getTable());
-            $col    = $this->_renderColumn($col);
+            $col = Helper::prepareColumn($col, $filter->getTable());
+            $col = $this->_renderColumn($col);
             $values = $this->_renderValues($values);
             $values = implode(", ", $values);
-            $ins[]  = "( {$col} IN ({$values}) )";
+            $ins[] = "( {$col} IN ({$values}) )";
         }
 
         return $ins;
@@ -514,10 +518,10 @@ class Generic implements IRenderer
         $notIns = array();
 
         foreach ($filter->getNotIns() as $col => $values) {
-            $col      = Helper::prepareColumn($col, $filter->getTable());
-            $col      = $this->_renderColumn($col);
-            $values   = $this->_renderValues($values);
-            $values   = implode(", ", $values);
+            $col = Helper::prepareColumn($col, $filter->getTable());
+            $col = $this->_renderColumn($col);
+            $values = $this->_renderValues($values);
+            $values = implode(", ", $values);
             $notIns[] = "( {$col} NOT IN ({$values}) )";
         }
 
@@ -552,7 +556,7 @@ class Generic implements IRenderer
     {
         $comparisons = $filter->getComparisons();
         array_walk($comparisons, function (&$comparison) {
-            if ($comparison["subject"] instanceof Column){
+            if ($comparison["subject"] instanceof Column) {
                 $str = $this->_renderColumn($comparison["subject"]);
             } else if ($comparison["subject"] instanceof Select) {
                 $str = '(' . $this->_renderSelect($comparison["subject"]) . ')';
@@ -650,7 +654,7 @@ class Generic implements IRenderer
      */
     protected function _renderTableWithAlias(Table $table)
     {
-        $alias  = ($table->getAlias()) ? " AS {$this->_renderAlias($table->getAlias())}" : '';
+        $alias = ($table->getAlias()) ? " AS {$this->_renderAlias($table->getAlias())}" : '';
         $schema = ($table->getSchema()) ? "{$this->_renderTableSchema($table)}." : '';
         return $schema . $this->_renderTableName($table) . $alias;
     }
@@ -779,9 +783,16 @@ class Generic implements IRenderer
 
     protected function _renderToken(Token $token)
     {
+        $str = '';
         switch ($token->getValue()) {
             default :
-                return $token->getValue();
+                $str = $token->getValue();
         }
+
+        if ($alias = $token->getAlias()) {
+            $str .= "AS {$this->_renderAlias($alias)}";
+        }
+
+        return $str;
     }
 }

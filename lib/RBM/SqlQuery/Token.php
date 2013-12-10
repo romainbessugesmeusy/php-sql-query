@@ -62,6 +62,9 @@ class Token
 
     protected $_value;
 
+    protected $_alias;
+
+
     public static function SELECT()
     {
         return new self(self::SELECT);
@@ -85,5 +88,21 @@ class Token
     public function getValue()
     {
         return $this->_value;
+    }
+
+    /**
+     * @param mixed $alias
+     */
+    public function setAlias($alias)
+    {
+        $this->_alias = $alias;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getAlias()
+    {
+        return $this->_alias;
     }
 }
