@@ -214,6 +214,11 @@ class Generic implements IRenderer
         $parts = array();
 
         $parts[] = "SELECT";
+
+        if($select->isDistinct()){
+            $parts[] = "DISTINCT";
+        }
+
         $parts[] = $this->_renderSelectColumns($select);
 
         $parts[] = $this->_renderSelectFrom($select);

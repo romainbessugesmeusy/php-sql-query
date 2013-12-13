@@ -40,6 +40,9 @@ printQuery($select);
 $select->limit(10, 20);
 printQuery($select);
 
+$select->distinct();
+printQuery($select);
+
 $select->filter()
     ->subFilter()
     ->equals('status', 'DRAFT')

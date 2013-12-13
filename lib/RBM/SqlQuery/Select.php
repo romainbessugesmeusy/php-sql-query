@@ -35,7 +35,7 @@ namespace RBM\SqlQuery;
 
 class Select extends AbstractQuery
 {
-    const JOIN_LEFT  = 'LEFT';
+    const JOIN_LEFT = 'LEFT';
     const JOIN_RIGHT = 'RIGHT';
     const JOIN_INNER = 'INNER';
     const JOIN_CROSS = 'CROSS';
@@ -68,6 +68,8 @@ class Select extends AbstractQuery
     protected $_having;
     /** @var string */
     protected $_havingOperator = "AND";
+    /** @var bool */
+    protected $_isDistinct = false;
 
     /**
      * @param string|Table|null $table
@@ -104,7 +106,7 @@ class Select extends AbstractQuery
     public function join($table, $selfColumn = null, $refColumn = null, $columns = array(), $selectClass = null, $joinType = null)
     {
         $table = Helper::prepareTable($table);
-        $key   = $table->getCompleteName();
+        $key = $table->getCompleteName();
 
         if (isset($this->_joins[$key])) {
             return $this->_joins[$key];
@@ -320,7 +322,7 @@ class Select extends AbstractQuery
         /** @var $join Select */
         foreach ($this->_joins as $join) {
             $joinCols = $join->getAllColumns();
-            $cols     = array_merge($cols, $joinCols);
+            $cols = array_merge($cols, $joinCols);
         }
         return $cols;
     }
@@ -424,7 +426,7 @@ class Select extends AbstractQuery
      */
     public function orderBy($column, $direction = OrderBy::ASC, $table = null, $useAlias = true)
     {
-        $column           = Helper::prepareColumn($column, is_null($table) ? $this->getTable() : $table);
+        $column = Helper::prepareColumn($column, is_null($table) ? $this->getTable() : $table);
         $this->_orderBy[] = new OrderBy($column, $direction, $useAlias);
         return $this;
     }
@@ -577,5 +579,22 @@ class Select extends AbstractQuery
     public function setHavingOperator($havingOperator)
     {
         $this->_havingOperator = $havingOperator;
+    }
+
+    /**
+     * @return $this
+     */
+    public function distinct()
+    {
+        $this->_isDistinct = true;
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isDistinct()
+    {
+        return $this->_isDistinct;
     }
 }
