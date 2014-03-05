@@ -314,6 +314,9 @@ class Generic implements IRenderer
     protected function _renderValue($value)
     {
 
+        if (is_null($value))
+            return $this->_renderNull();
+
         if (is_string($value))
             return $this->_renderString($value);
 
