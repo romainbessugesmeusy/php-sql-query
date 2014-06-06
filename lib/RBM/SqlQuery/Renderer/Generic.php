@@ -275,7 +275,7 @@ class Generic implements IRenderer
         $vals = $insert->getValues();
 
         array_walk($cols, function (&$col) {
-            $col = $this->_renderColumn($col);
+            $col = $this->_renderColumnName($col);
         });
 
         array_walk($vals, function (&$val) {
