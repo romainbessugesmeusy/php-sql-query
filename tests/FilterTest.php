@@ -123,6 +123,16 @@ class FilterTest extends PHPUnit_Framework_TestCase
         $this->_testCompareMethod("notLike", Filter::OPERATOR_NOT_LIKE);
     }
 
+    public function testILike()
+    {
+        $this->_testCompareMethod("ilike", Filter::OPERATOR_ILIKE);
+    }
+
+    public function testNotILike()
+    {
+        $this->_testCompareMethod("notILike", Filter::OPERATOR_NOT_ILIKE);
+    }
+
     public function testBetweens()
     {
         $f = $this->_getFilter();

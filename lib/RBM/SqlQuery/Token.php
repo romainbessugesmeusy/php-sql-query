@@ -56,6 +56,8 @@ class Token
     const CONJONCTION_OR  = "OR";
     const LIKE            = "LIKE";
     const NOT_LIKE        = "NOT LIKE";
+    const ILIKE           = "ILIKE";
+    const NOT_ILIKE       = "NOT ILIKE";
 
     const CURRENT_TIMESTAMP = 'CURRENT_TIMESTAMP';
     const NULL              = "NULL";

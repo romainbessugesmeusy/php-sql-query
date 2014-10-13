@@ -42,6 +42,8 @@ class Filter
     const OPERATOR_LOWER_THAN            = '<';
     const OPERATOR_LIKE                  = 'LIKE';
     const OPERATOR_NOT_LIKE              = 'NOT LIKE';
+    const OPERATOR_ILIKE                 = 'ILIKE';
+    const OPERATOR_NOT_ILIKE             = 'NOT ILIKE';
     const OPERATOR_EQUAL                 = '=';
     const OPERATOR_NOT_EQUAL             = '<>';
 
@@ -259,6 +261,26 @@ class Filter
     public function notLike($col, $value)
     {
         return $this->compare($col, $value, self::OPERATOR_NOT_LIKE);
+    }
+
+    /**
+     * @param $col
+     * @param $value
+     * @return static
+     */
+    public function ilike($col, $value)
+    {
+        return $this->compare($col, $value, self::OPERATOR_ILIKE);
+    }
+
+    /**
+     * @param $col
+     * @param $value
+     * @return static
+     */
+    public function notILike($col, $value)
+    {
+        return $this->compare($col, $value, self::OPERATOR_NOT_ILIKE);
     }
 
     /**
