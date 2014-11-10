@@ -54,6 +54,11 @@ class MySql extends Generic
 
     protected function _enclose($string, $char = '`')
     {
+
+        if (preg_match("/\./", $string)) {
+            preg_replace("/\./", $char . ".".$char, $string);
+        }
+
         return $char . $string . $char;
     }
 }
