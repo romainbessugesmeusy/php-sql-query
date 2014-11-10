@@ -317,15 +317,17 @@ class Generic implements IRenderer
         if (is_null($value))
             return $this->_renderNull();
 
-        if (is_string($value))
+        if (is_string($value)) {
+            if (preg_match("/native /", $value)) {
+        		return $this->_renderNative($value);
+        	}
             return $this->_renderString($value);
+        }
 
         if (is_bool($value))
             return $this->_renderBoolean($value);
 
-        if (preg_match("/native /", $value)) {
-        	return $this->_renderNative($value)
-        }
+
 
 
         if ($value instanceof IQuery)
