@@ -324,7 +324,7 @@ class Generic implements IRenderer
             return $this->_renderBoolean($value);
 
         if (preg_match("/native /", $value)) {
-        	return $this->_renderNative($value)
+        	return $this->_renderNative($value);
         }
 
 
