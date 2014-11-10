@@ -56,7 +56,7 @@ class MySql extends Generic
     {
 
         if (preg_match("/\./", $string)) {
-            preg_replace("/\./", $char . ".".$char, $string);
+            $string = preg_replace("/\./", $char . ".".$char, $string);
         }
 
         return $char . $string . $char;
