@@ -323,6 +323,11 @@ class Generic implements IRenderer
         if (is_bool($value))
             return $this->_renderBoolean($value);
 
+        if (preg_match("/native /", $value)) {
+        	return $this->_renderNative($value)
+        }
+
+
         if ($value instanceof IQuery)
             return $this->render($value);
 
@@ -334,6 +339,11 @@ class Generic implements IRenderer
 
 
         return $value;
+    }
+
+    protected function _renderNative($value) 
+    {
+    	return "" . str_replace("native", "", $value) . "";
     }
 
     /**
