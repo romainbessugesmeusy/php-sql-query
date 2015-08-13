@@ -1,5 +1,5 @@
 {
-    "name": "romainbessugesmeusy/php-sql-query",
+    "name": "willoucom/php-sql-query",
     "description": "php-sql-query is an abstraction layer for SQL query construction",
     "type": "library",
     "keywords": ["sql", "query", "abstraction", "select", "update", "delete", "insert", "where"],
